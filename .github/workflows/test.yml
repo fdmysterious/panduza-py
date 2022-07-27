@@ -2,7 +2,7 @@ name: Action to test the Python client
 on: [push]
 
 env:
-  PLATFORM_PY_BRANCH: subprocess_test_platform
+  PLATFORM_PY_BRANCH: main
 
 jobs:
   Tests:
@@ -22,7 +22,6 @@ jobs:
       - run: pip install PyHamcrest coverage loguru
       - run: pip install behave-html-formatter
 
-      - run: git clone --branch  $PLATFORM_PY_BRANCH  https://github.com/Panduza/panduza-py-platform
       - run: pip install git+https://github.com/Panduza/panduza-py-platform@$PLATFORM_PY_BRANCH
 
       - run: mosquitto -d
@@ -32,11 +31,10 @@ jobs:
 
 
       - name: Execute tests
-        run: coverage run --source='../panduza' -m behave
-        working-directory: panduza-py-platform
+        run: coverage run --source='panduza' -m behave
         env:
-          PYTHONPATH: ".."
-          COVERAGE_PROCESS_START: "${GITHUB_WORKSPACE}/.coveragerc"
+          PYTHONPATH: "."
+          COVERAGE_PROCESS_START: "NO"
 
 
       - run: echo "`ls -la ${GITHUB_WORKSPACE}`"
@@ -44,27 +42,22 @@ jobs:
 
       - name: Covergae Report
         run: coverage report
-        working-directory: panduza-py-platform
 
 
       - name: Execute tests to html
-        run: behave -f html -o test_reports/test.html
-        working-directory: panduza-py-platform
+        run: coverage run --source='panduza' -m behave -f html -o acceptance/report/test.html
         env:
           PYTHONPATH: ".."
-          COVERAGE_PROCESS_START: "${GITHUB_WORKSPACE}/.coveragerc"
-
+          COVERAGE_PROCESS_START: "NO"
 
       - name: Coverage Report to html
-        run: coverage html -d test_reports/coverage
-        working-directory: panduza-py-platform
-
+        run: coverage html -d acceptance/report/coverage
 
       - uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: test_reports
-          path: panduza-py-platform/test_reports
+          name: acceptance-report
+          path: panduza-py-platform/acceptance/report
 
 
       - run: echo "🎉 Test finished !"
