@@ -1,7 +1,10 @@
 from .core import Core
 from .core import Client
+from .core import Interface
+from .core import EnsureError
 
 from .interfaces import Io
+from .interfaces import File
 from .interfaces import PowerSupply
 # from .interfaces.serial import Serial
 # from .interfaces.spi_master import SpiMaster
