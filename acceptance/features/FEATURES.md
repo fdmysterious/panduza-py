@@ -1,4 +1,4 @@
-# Features
+# API Specifications
 
 This documentation describes Panduza Features.
 

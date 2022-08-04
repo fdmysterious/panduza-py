@@ -1,5 +1,5 @@
 @action.platform_start.io_tree.json
-Feature: API Io
+Feature: API_IO
 
     Panduza provides a way to control simple input/output signals
 
