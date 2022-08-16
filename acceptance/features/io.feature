@@ -3,7 +3,27 @@ Feature: API_IO
 
     Panduza provides a way to control simple input/output signals
 
-    Rule: API Io must be able to drive io direction
+    # -----------------------------------------------------------------------------
+    # -----------------------------------------------------------------------------
+    # -----------------------------------------------------------------------------
+    Rule: API_IO must be comptabile with the discovery process
+
+        Discovery requests are sent by the client on the topic *pza*.
+
+        The driver must respond on its own topic {INTERFACE_PREFIX}/info.
+
+        The payload exposed by the interface
+        ```json
+            {
+                "type": "io", 
+                "version": "1.0"
+            }
+        ```
+
+    # -----------------------------------------------------------------------------
+    # -----------------------------------------------------------------------------
+    # -----------------------------------------------------------------------------
+    Rule: API_IO must be able to drive io direction
 
         Two topics are defined for this purpose:
 

@@ -12,6 +12,7 @@ Feature: API_PSU
 
         The driver must respond on its own topic {INTERFACE_PREFIX}/info.
 
+        The payload exposed by the interface
         ```json
             {
                 "type": "psu", 

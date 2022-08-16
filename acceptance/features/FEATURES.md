@@ -2,6 +2,14 @@
 
 This documentation describes Panduza Features.
 
+## Drivers and Clients
+
+Panduza is based on MQTT, in this protocol there is the MQTT brokers and the MQTT clients.
+The Panduza clients and drivers are both MQTT clients and communicate through the MQTT brokers.
+
+- Panduza driver expose interface control part of the API. It is connected to the interface and wait for clients to send commands.
+- Panduza client is the interface user part of the API. The user can send command and monitor answers from the client.
+
 ## Panduza MQTT levels
 
 Panduza levels are defined as follow
@@ -21,4 +29,8 @@ INTERFACE_PREFIX: pza/[machine]/[group]/[interface]
 
 - **specifier** : [atts|cmds|info]
 - **attribut**  : defines the specific element of the interface to monitor.
+
+
+
+
 
