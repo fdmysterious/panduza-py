@@ -1,12 +1,29 @@
 @action.platform_start.file_tree.json
-Feature: API File
+Feature: API_FILE
 
     Panduza provides a way to transfert small files
 
     # -----------------------------------------------------------------------------
     # -----------------------------------------------------------------------------
     # -----------------------------------------------------------------------------
-    Rule: API File must be able to transfert the file content
+    Rule: API_FILE must be comptabile with the discovery process
+
+        Discovery requests are sent by the client on the topic *pza*.
+
+        The driver must respond on its own topic {INTERFACE_PREFIX}/info.
+
+        The payload exposed by the interface
+        ```json
+            {
+                "type": "file", 
+                "version": "1.0"
+            }
+        ```
+
+    # -----------------------------------------------------------------------------
+    # -----------------------------------------------------------------------------
+    # -----------------------------------------------------------------------------
+    Rule: API_FILE must be able to transfert the file content
 
         2 topics are defined to this purpose:
 
@@ -45,7 +62,7 @@ Feature: API File
     # -----------------------------------------------------------------------------
     # -----------------------------------------------------------------------------
     # -----------------------------------------------------------------------------
-    Rule: API File must provide a way to manage errors
+    Rule: API_FILE must provide a way to manage errors
 
         It is the client responsability to timeout if the interface does not respond.
 
@@ -59,7 +76,7 @@ Feature: API File
     # -----------------------------------------------------------------------------
     # -----------------------------------------------------------------------------
     # -----------------------------------------------------------------------------
-    # Rule: API File must be able to read file metadata
+    # Rule: API_FILE must be able to read file metadata
 
     #     1 topic is defined to this purpose:
 

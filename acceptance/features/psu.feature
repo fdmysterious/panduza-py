@@ -14,12 +14,12 @@ Feature: API_PSU
 
         The payload exposed by the interface
         ```json
-            {
-                "type": "psu", 
-                "version": "1.0"
-            }
+        {
+            "type": "psu",
+            "version": "1.0"
+        }
         ```
-     
+
 
 
 

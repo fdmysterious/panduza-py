@@ -15,8 +15,8 @@ The Panduza clients and drivers are both MQTT clients and communicate through th
 
 Todo: image here
 
-When multiple driver are gathered into a common package it is called a **class**. For example the class psu can gather driver to manage different types of power supply 
-
+When multiple drivers are gathered into a common package it is called a **class**.
+For example the class PSU can gather driver to manage different types of power supplies.
 
 ## Panduza MQTT levels
 
@@ -32,13 +32,16 @@ INTERFACE_PREFIX: pza/[machine]/[group]/[interface]
 - **interface** : defines the interface name.
 
 ```
-{INTERFACE_PREFIX}/[specifier]/[attribut]
+{INTERFACE_PREFIX}/[specifier]/[property]/[action]
 ```
 
 - **specifier** : [atts|cmds|info]
-- **attribut**  : defines the specific element of the interface to monitor.
+- **property**  : defines the specific element of the interface to monitor.
+- **action**    : if specifier is cmds, action to perform
 
+Specificers definitions
 
-
-
+- **atts**
+- **cmds**
+- **info**
 
