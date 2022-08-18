@@ -22,6 +22,8 @@ For example the class PSU can gather driver to manage different types of power s
 
 Panduza levels are defined as follow
 
+INTERFACE_PREFIX is the identifier of the interface on the MQTT Broker.
+
 ```
 INTERFACE_PREFIX: pza/[machine]/[group]/[interface]
 ```

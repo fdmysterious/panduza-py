@@ -16,30 +16,65 @@ Feature: API_LACE
 
         The payload exposed by the interface
         ```json
-        {
-            "type": "lace",
-            "version": "1.0"
-        }
+            {
+                "type": "lace",
+                "version": "1.0"
+            }
         ```
 
     # -----------------------------------------------------------------------------
     # -----------------------------------------------------------------------------
     # -----------------------------------------------------------------------------
-    Rule: API_LACE must be able to
+    Rule: API_LACE must manage a queue of commands to execute
 
-        2 topics are defined to this purpose:
+        API_LACE interface can execute only one command at a time.
 
-        | Suffix                                  | QOS   | Retain   |
+        | Topic                                   | QOS   | Retain   |
         | :-------------------------------------- | :---: | :------: |
-        
-        | {INTERFACE_PREFIX}/atts/queue           | 0     | true     |
-        
         | {INTERFACE_PREFIX}/cmds/queue/push      | 0     | false    |
-        | {INTERFACE_PREFIX}/cmds/queue/reset     | 0     | false    |
+        | {INTERFACE_PREFIX}/atts/queue           | 0     | true     |
+        | {INTERFACE_PREFIX}/atts/cmd/status      | 0     | true     |
 
-        | {INTERFACE_PREFIX}/atts/status          | 0     | true     |
-        | {INTERFACE_PREFIX}/atts/stdout          | 0     | true     |
-        | {INTERFACE_PREFIX}/atts/stderr          | 0     | true     |
+        The client can push a command with the topic **cmds/queue/push**.
+
+        The payload is composed of the command string and its environnement parameters
+
+        | Key         | Type     | Description                         |
+        | :-------- : | :------: | :---------------------------------: |
+        | command     | string   | Command to exectue                  |
+        | workdir     | string   | Path to working dir                 |
+        | env         | dict     | Dict of env variables               |
+
+        ```json
+            {
+                "command": "ls -la",
+                "workdir": "/path/to/workdir",
+                "env": {
+                    "key": "value",
+                    "key": "value",
+                    "key": "value"
+                }
+            }
+        ```
+
+        Each command will be queued by the driver.
+        The client can see the current content of the queue on **atts/queue**.
+
+        ```json
+            {
+                "commands": [ { "command": ... }, ... ],
+            }
+        ```
+
+
+
+
+
+        | {INTERFACE_PREFIX}/cmds/queue/reset | 0 | false |
+
+
+        | {INTERFACE_PREFIX}/atts/cmd/stdout | 0 | true |
+        | {INTERFACE_PREFIX}/atts/cmd/stderr | 0 | true |
 
 
 

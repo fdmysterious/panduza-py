@@ -27,7 +27,7 @@ Feature: API_FILE
 
         2 topics are defined to this purpose:
 
-        | Suffix                                | QOS | Retain |
+        | Topic                                 | QOS | Retain |
         |:--------------------------------------|:---:|:------:|
         | {INTERFACE_PREFIX}/atts/content       | 0   | true   |
         | {INTERFACE_PREFIX}/cmds/content/set   | 0   | false  |
@@ -80,7 +80,7 @@ Feature: API_FILE
 
     #     1 topic is defined to this purpose:
 
-    #     | Suffix                                | QOS | Retain |
+    #     | Topic                                 | QOS | Retain |
     #     |:--------------------------------------|:---:|:------:|
     #     | {INTERFACE_PREFIX}/atts/metadata      | 0   | true   |
 
