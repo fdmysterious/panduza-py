@@ -16,10 +16,10 @@ Feature: API_LACE
 
         The payload exposed by the interface
         ```json
-            {
-                "type": "lace",
-                "version": "1.0"
-            }
+        {
+            "type": "lace",
+            "version": "1.0"
+        }
         ```
 
     # -----------------------------------------------------------------------------
@@ -46,35 +46,35 @@ Feature: API_LACE
         | env         | dict     | Dict of env variables               |
 
         ```json
-            {
-                "command": "ls -la",
-                "workdir": "/path/to/workdir",
-                "env": {
-                    "key": "value",
-                    "key": "value",
-                    "key": "value"
-                }
+        {
+            "command": "ls -la",
+            "workdir": "/path/to/workdir",
+            "env": {
+                "key": "value",
+                "key": "value",
+                "key": "value"
             }
+        }
         ```
 
         Each command will be queued by the driver.
         The client can see the current content of the queue on **atts/queue**.
 
         ```json
-            {
-                "commands": [ { "command": ... }, ... ],
-            }
+        {
+            "commands": [ { "command": ... }, ... ],
+        }
         ```
 
 
 
 
 
-        | {INTERFACE_PREFIX}/cmds/queue/reset | 0 | false |
-
-
-        | {INTERFACE_PREFIX}/atts/cmd/stdout | 0 | true |
-        | {INTERFACE_PREFIX}/atts/cmd/stderr | 0 | true |
+        | Topic                                   | QOS   | Retain   |
+        | :-------------------------------------- | :---: | :------: |
+        | {INTERFACE_PREFIX}/cmds/queue/reset     | 0     | false    |
+        | {INTERFACE_PREFIX}/atts/cmd/stdout      | 0     | true     |
+        | {INTERFACE_PREFIX}/atts/cmd/stderr      | 0     | true     |
 
 
 

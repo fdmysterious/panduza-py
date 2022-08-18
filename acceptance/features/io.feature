@@ -62,18 +62,18 @@ Feature: API_IO
 
         | Topic                                 | QOS | Retain |
         |:-------------------------------------:|:---:|:------:|
-        | {INTERFACE_PREFIX}/atts/direction     | 0   | true   |
-        | {INTERFACE_PREFIX}/cmds/direction/set | 0   | false  |
+        | {INTERFACE_PREFIX}/atts/value         | 0   | true   |
+        | {INTERFACE_PREFIX}/cmds/value/set     | 0   | false  |
 
         The payload of those topics must be a json payload:
 
         | Key       | Type   | Description                       |
         |:-------- :|:------:|:---------------------------------:|
-        | direction | string | direction of the io 'in' or 'out' |
+        | value     | number | value of the io                   |
 
         ```json
             {
-                "direction": "in"
+                "value": 0
             }
         ```
 
@@ -98,5 +98,4 @@ Feature: API_IO
             Then io interface "in" value is "1"
             When io interface "out" value is set to "0"
             Then io interface "in" value is "0"
-
 
