@@ -2,7 +2,7 @@ import json
 from ..core import Interface
 from ..core import Attribute_JSON
 
-class PowerSupply(Interface):
+class Psu(Interface):
     """Interface to manage power supplies
     """
 

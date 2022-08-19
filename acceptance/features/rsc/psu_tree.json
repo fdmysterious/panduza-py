@@ -6,8 +6,8 @@
             "port": 1883,
             "interfaces": [
                 {
-                    "name": "file_test",
-                    "driver": "file_fake"
+                    "name": "Pikachu",
+                    "driver": "psu_fake"
                 }
             ]
         }

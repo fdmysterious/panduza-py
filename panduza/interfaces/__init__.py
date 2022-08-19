@@ -1,3 +1,4 @@
 from .io import Io
+from .psu import Psu
 from .file import File
-from .power_supply import PowerSupply
+from .lace import Lace
