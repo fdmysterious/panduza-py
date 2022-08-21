@@ -25,6 +25,6 @@ Core.LoadAliases({
 # Create interface
 psu = Psu(alias="Pikachu")
 
-#
+# Set voltage
 psu.volts.set(5)
 
