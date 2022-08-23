@@ -15,30 +15,21 @@ class PsuNumericAttribute(Attribute):
         """
         super().__init__(client=pza_client, base_topic=b_topic, name=name)
         self.__trigger = threading.Event()
-
-
-        """ @brief Current value of the attribute, it can set and get
-        """
         self.__value = None
-        self.__min: any = None
-        self.__max: any = None
-        self.__scale: any = None
-
-
+        self.__min = None
+        self.__max = None
+        self.__scale = None
 
     def __post_init__(self):
-        """
+        """! @brief Post Constructor
         """
         super().__post_init__()
-
-        # Subscribe to topic
         self.client.subscribe(self._topic_atts_get, callback=self.__update)
 
     def __update(self, topic, payload):
         """! @brief Callback triggered on reception of an mqtt messsage for this attribute
         """
-        self._log.debug("Received new content")
-
+        # Fill internal data from payload
         if payload is None:
             self.__value = None
             self.__min = None
@@ -47,26 +38,47 @@ class PsuNumericAttribute(Attribute):
         else:
             data = json.loads(payload.decode("utf-8"))
             self.__value = data[self.name]
-            self._log.debug(f"value : {self.__value}")
-            self.__min = data["min"]
-            self._log.debug(f"min : {self.__min}")
-            self.__max = data["max"]
-            self._log.debug(f"max : {self.__max}")
-            self.__scale = data["scale"]
-            self._log.debug(f"scale : {self.__scale}")
+            self._log.debug(f"NEW value : {self.__value}")
+            if "min" in data:
+                self.__min = data["min"]
+                self._log.debug(f"NEW min : {self.__min}")
+            if "max" in data:
+                self.__max = data["max"]
+                self._log.debug(f"NEW max : {self.__max}")
+            if "scale" in data:
+                self.__scale = data["scale"]
+                self._log.debug(f"NEW scale : {self.__scale}")
             self.__trigger.set()
 
-
     def get(self):
+        """! @brief getter for the value property
+        """
         return self.__value
 
+    def get_min(self):
+        """! @brief getter for the min property
+        """
+        return self.__min
+
+    def get_max(self):
+        """! @brief getter for the max property
+        """
+        return self.__max
+
+    def get_scale(self):
+        """! @brief getter for the scale property
+        """
+        return self.__scale
 
     def set(self, v, ensure=False):
-
+        """! @brief getter for the scale property
+        """
+        # Init
         retry=3
         if ensure:
             self.trigger_arm()
 
+        # Send the message
         self.client.publish(self._topic_cmds_set, self.payload_factory(v))
 
         if ensure:
@@ -81,26 +93,19 @@ class PsuNumericAttribute(Attribute):
             if self.__value != v:
                 raise RuntimeError(f"Attribute {self.name} for {self.base_topic}: cannot set to '{v}', got '{self.__value}'")
 
-
-
+# -----------------------------------------------------------------------------
 
 class Psu(Interface):
-    """Interface to manage power supplies
+    """ @brief Interface to manage power supplies
     """
 
-    ###########################################################################
-    ###########################################################################
-    
     def __init__(self, alias=None, url=None, port=None, b_topic=None, pza_client=None):
-        """Constructor
+        """ @brief Constructor
         """
         super().__init__(alias, url, port, b_topic, pza_client)
 
-    ###########################################################################
-    ###########################################################################
-
     def _post_initialization(self):
-        """Declare attributes here
+        """ @brief Declare attributes here
         """
 
         self.state = Attribute_JSON(
@@ -112,20 +117,14 @@ class Psu(Interface):
             payload_parser  = lambda v: bool(json.loads(v.decode("utf-8"))["state"])
         )
 
-        self.volts = Attribute_JSON(
-            client          = self.client,
-            base_topic      = self.base_topic,
-            name            = "volts",
-
-            payload_factory = lambda v: json.dumps({"volts": float(v)}).encode("utf-8"),
-            payload_parser  = lambda v: bool(json.loads(v.decode("utf-8"))["volts"])
+        self.volts = PsuNumericAttribute(
+            pza_client      = self.client,
+            b_topic         = self.base_topic,
+            name            = "volts"
         )
 
         self.amps = PsuNumericAttribute(
             pza_client      = self.client,
             b_topic         = self.base_topic,
-            name            = "amps",
-
-            # payload_factory = lambda v: json.dumps({"amps": float(v)}).encode("utf-8"),
-            # payload_parser  = lambda v: json.loads(v.decode("utf-8"))["amps"]
+            name            = "amps"
         )
