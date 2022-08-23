@@ -93,9 +93,10 @@ class Attribute_JSON(Attribute):
         self.__trigger.clear()
 
     def trigger_wait(self, timeout=5):
-        if not self.__trigger.wait(timeout=timeout):
-            raise RuntimeError(f"Timeout waiting for trigger for attribute {self.name} on {self.base_topic}")
-
+        try:
+            self.__trigger.wait(timeout=timeout)
+        except:
+            pass
 
     # ┌────────────────────────────────────────┐
     # │ Set/get                                │

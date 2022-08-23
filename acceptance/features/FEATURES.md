@@ -18,7 +18,7 @@ Todo: image here
 When multiple drivers are gathered into a common package it is called a **class**.
 For example the class PSU can gather driver to manage different types of power supplies.
 
-## Panduza MQTT levels
+## Panduza MQTT topic levels
 
 Panduza levels are defined as follow
 
@@ -46,4 +46,24 @@ Specificers definitions
 - **atts**
 - **cmds**
 - **info**
+
+
+
+<!--
+Work here on general concept behind cmds and atts
+
+
+## Symmetrical & Asymmetric attributes
+
+Some attributes are defined as Symmetrical
+
+The Specificers
+
+| Topic                                   | QOS   | Retain   |
+| :-------------------------------------- | :---: | :------: |
+| {INTERFACE_PREFIX}/cmds/state/set       | 0     | false    |
+| {INTERFACE_PREFIX}/atts/state           | 0     | true     |
+-->
+
+
 

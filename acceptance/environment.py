@@ -5,7 +5,9 @@ from behave import *
 from steps.xdocz_helpers import AttachTextLog
 
 from fixtures.client import client
-from fixtures.interface import interface_io, interface_file
+from fixtures.interface import interface_io
+from fixtures.interface import interface_psu
+from fixtures.interface import interface_file
 
 from actions.platform import platform_start, platform_stop
 
@@ -23,6 +25,9 @@ def before_tag(context, tag):
     if tag.startswith("fixture.interface.io"):
         name = tag.replace("fixture.interface.io.", "")
         use_fixture(interface_io, context, name=name)
+    elif tag.startswith("fixture.interface.psu"):
+        name = tag.replace("fixture.interface.psu.", "")
+        use_fixture(interface_psu, context, name=name)
     elif tag.startswith("fixture.interface.file"):
         name = tag.replace("fixture.interface.file.", "")
         use_fixture(interface_file, context, name=name)

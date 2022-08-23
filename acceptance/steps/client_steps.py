@@ -1,7 +1,7 @@
 import os
 import time
 from behave import *
-from hamcrest import assert_that, equal_to
+from hamcrest import assert_that, equal_to, has_key
 from xdocz_helpers import AttachTextLog, PathToRsc
 from panduza import Core, Client
 
@@ -75,6 +75,7 @@ def step(context, interface_topic, type, version):
 
     This step need the step STEP_CLIENT_0500 to fill context.scanned_interfaces
     """
+    assert_that(context.scanned_interfaces, has_key(equal_to(interface_topic)))
     assert_that(context.scanned_interfaces[interface_topic]["type"], equal_to(type))
     assert_that(context.scanned_interfaces[interface_topic]["version"], equal_to(version))
 
