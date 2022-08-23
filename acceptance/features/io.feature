@@ -26,11 +26,7 @@ Feature: API_IO
             Given a client "test" initialized with the mqtt test broker alias:"local_test"
             When  the client "test" start the connection
             And   the client "test" scan the interfaces
-            Then  interface "pza/test_io/io_fake/io_auto_toggle" contains information type == "io" and version == "1.0"
-            
-        
-       # interfaces => {'pza/test_io/platform_py/platform': {'type': 'platform', 'version': '1.0'}, 'pza/test_io/io_fake/io_in': {'type': 'io', 'version': '1.0'}, 'pza/test_io/io_fake/io_auto_toggle': {'type': 'io', 'version': '1.0'}, 'pza/test_io/io_fake/io_out': {'type': 'io', 'version': '1.0'}, 'pza/test_io/io_fake/io_test': {'type': 'io', 'version': '1.0'}, 'pza/test_io/io_fake/io_bad_behaviour': {'type': 'io', 'version': '1.0'}}
-
+            Then  interface "pza/test_io/io_fake/io_in" contains information type == "io" and version == "1.0"
 
     # -----------------------------------------------------------------------------
     # -----------------------------------------------------------------------------

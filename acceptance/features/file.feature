@@ -20,7 +20,13 @@ Feature: API_FILE
             }
         ```
 
-    
+        @fixture.client.test
+        Scenario: Check scan information
+            Given core aliases loaded with file "file_alias.json"
+            Given a client "test" initialized with the mqtt test broker alias:"local_test"
+            When  the client "test" start the connection
+            And   the client "test" scan the interfaces
+            Then  interface "pza/test/file_fake/file_test" contains information type == "file" and version == "1.0"
 
     # -----------------------------------------------------------------------------
     # -----------------------------------------------------------------------------
@@ -60,7 +66,6 @@ Feature: API_FILE
             | rsc_file          | mime          |
             | file/2bytes.txt   | text/plain    |
 
-
     # -----------------------------------------------------------------------------
     # -----------------------------------------------------------------------------
     # -----------------------------------------------------------------------------
@@ -69,28 +74,9 @@ Feature: API_FILE
         It is the client responsability to timeout if the interface does not respond.
 
         @fixture.interface.file.test
-        Scenario: Test that the client tiemout is the interface does not exist
+        Scenario: Test that the client timeout when the interface does not exist
             Given core aliases loaded with file "file_alias.json"
             And   file interface "test" initialized with alias "not_exist"
             When  file interface "test" is set with content from file "file/2bytes.txt"
             Then  an ensure exception must have occured
-
-    # -----------------------------------------------------------------------------
-    # -----------------------------------------------------------------------------
-    # -----------------------------------------------------------------------------
-    # Rule: API_FILE must be able to read file metadata
-
-    #     1 topic is defined to this purpose:
-
-    #     | Topic                                 | QOS | Retain |
-    #     |:--------------------------------------|:---:|:------:|
-    #     | {INTERFACE_PREFIX}/atts/metadata      | 0   | true   |
-
-    #     The payload of this topic must be a json payload:
-
-    #     | Key       | Type          | Description                                   |
-    #     |:-------- :|:-------------:|:---------------------------------------------:|
-    #     | size      | number        | size of the file content in bytes             |
-    #     | crc       | string        | crc32 of                                      |
-    #     ```
 

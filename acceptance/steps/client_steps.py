@@ -14,7 +14,6 @@ use_step_matcher("parse")
 ###############################################################################
 ###############################################################################
 
-
 @Given('the client "{client_name}" initialized with test broker url:"{url}" and port:"{port}"')
 def step(context, client_name, url, port):
     context.clients[client_name] = Client(url=url, port=int(port))
@@ -23,7 +22,6 @@ def step(context, client_name, url, port):
 
 ###############################################################################
 ###############################################################################
-
 
 @Given('a client "{client_name}" initialized with the mqtt test broker alias:"{alias}"')
 def step(context, client_name, alias):
@@ -34,14 +32,12 @@ def step(context, client_name, alias):
 ###############################################################################
 ###############################################################################
 
-
 @When('the client "{client_name}" start the connection')
 def step(context, client_name):
     context.clients[client_name].connect()
 
 ###############################################################################
 ###############################################################################
-
 
 @Then('the client "{client_name}" is connected')
 def step(context, client_name):
@@ -51,15 +47,16 @@ def step(context, client_name):
 ###############################################################################
 ###############################################################################
 
-
-@When('the client "{client_name}" scan the interfaces')
+@Step('the client "{client_name}" scan the interfaces')
 def step(context, client_name):
+    """
+    STEP_CLIENT_0050
+    """
     context.scanned_interfaces = context.clients[client_name].scan_interfaces()
     AttachTextLog(context, f"interfaces: {context.scanned_interfaces}")
 
 ###############################################################################
 ###############################################################################
-
 
 @Then('at least a platform interface must be found')
 def step(context):
@@ -69,6 +66,17 @@ def step(context):
             found_platform = True
     assert found_platform == True
 
+###############################################################################
+###############################################################################
+
+@Step('interface "{interface_topic}" contains information type == "{type}" and version == "{version}"')
+def step(context, interface_topic, type, version):
+    """Check information from a scanned interface
+
+    This step need the step STEP_CLIENT_0500 to fill context.scanned_interfaces
+    """
+    assert_that(context.scanned_interfaces[interface_topic]["type"], equal_to(type))
+    assert_that(context.scanned_interfaces[interface_topic]["version"], equal_to(version))
 
 ###############################################################################
 ###############################################################################
@@ -87,7 +95,6 @@ def step(context, client_name, topic):
 ###############################################################################
 ###############################################################################
 
-
 @When('the client "{client_name}" send "{data}" in topic "{topic}"')
 def step(context, client_name, data, topic):
     context.clients[client_name].publish(topic, data)
@@ -96,7 +103,6 @@ def step(context, client_name, data, topic):
 ###############################################################################
 ###############################################################################
 
-
 @Then('the client "{client_name}" has recieved "{data}"')
 def step(context, client_name, data):
     time.sleep(0.5)
@@ -104,7 +110,6 @@ def step(context, client_name, data):
 
 ###############################################################################
 ###############################################################################
-
 
 @When('the client "{client_name}" unsubscribe from the topic "{topic}"')
 def step(context, client_name, topic):
