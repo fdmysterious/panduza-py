@@ -19,3 +19,5 @@ RUN mkdir /work
 RUN useradd test -u 1000
 
 WORKDIR /work
+
+ENTRYPOINT mosquitto -d && bash

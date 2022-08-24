@@ -17,7 +17,7 @@ class MetaDataAttribute(Attribute):
     """
     
     def __init__(self, b_topic, pza_client):
-        """Constructor
+        """ @brief Constructor
         """
         super().__init__(client=pza_client, base_topic=b_topic, name='metadata')
 
@@ -150,26 +150,33 @@ class FileContentAttribute(Attribute):
             if self.__data != encoded != v:
                 raise EnsureError(f"Attribute {self.name} for {self.base_topic}: cannot set to '{encoded}', got '{self.__data}'")
 
-
-
-        
+  
 # -----------------------------------------------------------------------------
 
 class File(Interface):
-    """Client to manage an File interface
+    """! Client to manage an File interface
+
+    To load a file content from a file
+
+    ```python
+    # Create file interface
+    ff = File(alias="file_test")
+
+    # Update content from a file
+    ff.content.set_from_file('path/to/file.txt')
+    ```
+
+
     """
 
-
     def __init__(self, alias=None, url=None, port=None, b_topic=None, pza_client=None):
-        """Constructor
+        """! Constructor
         """
         super().__init__(alias, url, port, b_topic, pza_client)
 
-
     def _post_initialization(self):
-        """Initialize attributes
+        """! Initialize attributes
         """    
         self.content = FileContentAttribute(self.base_topic, self.client)
         self.metadata = MetaDataAttribute(self.base_topic, self.client)
-
 

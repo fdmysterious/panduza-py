@@ -2,6 +2,7 @@
 
 USER_MODE=1
 LOCAL_IMAGE=0
+DOX_HTML_SERVER=0
 
 
 while [[ $# -gt 0 ]]; do
@@ -14,6 +15,10 @@ while [[ $# -gt 0 ]]; do
         LOCAL_IMAGE=1
         shift # past argument
         ;;
+    -s|--serve)
+        DOX_HTML_SERVER=1
+        shift # past argument
+        ;;
     *)
         shift # past argument
         ;;
@@ -21,24 +26,36 @@ while [[ $# -gt 0 ]]; do
 done
 
 
-[ -z $IMAGE_PPAPERWORK ] && IMAGE_PPAPERWORK="ghcr.io/projectpaperwork/ppaperwork:latest"
-if [ $LOCAL_IMAGE == 1 ] ; then
-        echo "<!-- RUN LOCAL IMAGE -->"
-        IMAGE_PPAPERWORK="ppaperwork"
-fi;
+if [ $DOX_HTML_SERVER == 1 ] ; then
 
+        #
+        echo "<!-- RUN HTTP SERVER PORT 8080 -->"
+        docker run -v $PWD/documentation/doxygen/html:/usr/share/nginx/html:ro -p 8080:80 nginx
 
-if [ $USER_MODE == 1 ] ; then
-        docker run \
-        -v $(pwd):/workdir \
-        -e USER_ID=$(id -u) \
-        -e GROUP_ID=$(id -g) \
-	-e TIMEZONE=$(cat /etc/timezone) \
-        $IMAGE_PPAPERWORK bash work.sh
 else
-        echo "<!-- RUN AS ROOT -->"
-        docker run --rm \
-        -v $(pwd):/workdir \
-        -e USER_ID=0 \
-        $IMAGE_PPAPERWORK bash work.sh
+
+        #
+        [ -z $IMAGE_PPAPERWORK ] && IMAGE_PPAPERWORK="ghcr.io/projectpaperwork/ppaperwork:latest"
+        if [ $LOCAL_IMAGE == 1 ] ; then
+                echo "<!-- RUN LOCAL IMAGE -->"
+                IMAGE_PPAPERWORK="ppaperwork"
+        fi;
+
+        #
+        if [ $USER_MODE == 1 ] ; then
+                docker run \
+                -v $(pwd):/workdir \
+                -e USER_ID=$(id -u) \
+                -e GROUP_ID=$(id -g) \
+                -e TIMEZONE=$(cat /etc/timezone) \
+                $IMAGE_PPAPERWORK bash work.sh
+        else
+                echo "<!-- RUN AS ROOT -->"
+                docker run --rm \
+                -v $(pwd):/workdir \
+                -e USER_ID=0 \
+                $IMAGE_PPAPERWORK bash work.sh
+        fi;
+
 fi;
+

@@ -7,11 +7,11 @@ from ..core import Interface, Attribute, EnsureError
 # -----------------------------------------------------------------------------
 
 class PsuNumericAttribute(Attribute):
-    """! @brief This attribute manage volts and amps attributes because they are very similar
+    """! This attribute manage volts and amps attributes because they are very similar
     """
 
     def __init__(self, b_topic, pza_client, name):
-        """! @brief Constructor
+        """! Constructor
         """
         super().__init__(client=pza_client, base_topic=b_topic, name=name)
         self.__trigger = threading.Event()
@@ -21,13 +21,13 @@ class PsuNumericAttribute(Attribute):
         self.__scale = None
 
     def __post_init__(self):
-        """! @brief Post Constructor
+        """! Post Constructor
         """
         super().__post_init__()
         self.client.subscribe(self._topic_atts_get, callback=self.__update)
 
     def __update(self, topic, payload):
-        """! @brief Callback triggered on reception of an mqtt messsage for this attribute
+        """! Callback triggered on reception of an mqtt messsage for this attribute
         """
         # Fill internal data from payload
         if payload is None:
@@ -51,27 +51,27 @@ class PsuNumericAttribute(Attribute):
             self.__trigger.set()
 
     def get(self):
-        """! @brief getter for the value property
+        """! getter for the value property
         """
         return self.__value
 
     def get_min(self):
-        """! @brief getter for the min property
+        """! getter for the min property
         """
         return self.__min
 
     def get_max(self):
-        """! @brief getter for the max property
+        """! getter for the max property
         """
         return self.__max
 
     def get_scale(self):
-        """! @brief getter for the scale property
+        """! getter for the scale property
         """
         return self.__scale
 
     def set(self, v, ensure=False):
-        """! @brief getter for the scale property
+        """! getter for the scale property
         """
         # Init
         retry=3
@@ -96,16 +96,16 @@ class PsuNumericAttribute(Attribute):
 # -----------------------------------------------------------------------------
 
 class Psu(Interface):
-    """ @brief Interface to manage power supplies
+    """! Interface to manage power supplies
     """
 
     def __init__(self, alias=None, url=None, port=None, b_topic=None, pza_client=None):
-        """ @brief Constructor
+        """! Constructor
         """
         super().__init__(alias, url, port, b_topic, pza_client)
 
     def _post_initialization(self):
-        """ @brief Declare attributes here
+        """! Declare attributes here
         """
 
         self.state = Attribute_JSON(

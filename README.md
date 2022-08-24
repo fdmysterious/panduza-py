@@ -1,6 +1,6 @@
 # Panduza Python
 
-This repo provides some client for panduza interfaces
+This repo provides Python client for panduza interfaces
 
 ## Dependencies
 
