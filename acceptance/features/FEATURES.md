@@ -48,12 +48,13 @@ Specificers definitions
 - **info**
 
 
+## Symmetrical & Asymmetric Properties
 
 <!--
 Work here on general concept behind cmds and atts
 
 
-## Symmetrical & Asymmetric attributes
+
 
 Some attributes are defined as Symmetrical
 
@@ -66,4 +67,6 @@ The Specificers
 -->
 
 
+## Test Scenarios
 
+The test scenarios are designed using the fake drivers. The goal of those scenarios is to cover 100% of the client en platform sources.
