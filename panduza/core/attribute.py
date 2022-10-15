@@ -88,7 +88,7 @@ class Attribute_JSON(Attribute):
     def trigger_arm(self):
         self.__trigger.clear()
 
-    def trigger_wait(self, timeout=5):
+    def trigger_wait(self, timeout):
         try:
             self.__trigger.wait(timeout=timeout)
         except:
@@ -118,8 +118,8 @@ class Attribute_JSON(Attribute):
         if ensure:
             # It is possible that you catch some initialization message with the previous dir value
             # To manage this case, just wait for the correct value
-            while self.__value != v or not retry:
-                self.trigger_wait(timeout=3)
+            while self.__value != v and retry > 0:
+                self.trigger_wait(timeout=1)
                 if self.__value != v:
                     self.trigger_arm()
                     retry-=1
