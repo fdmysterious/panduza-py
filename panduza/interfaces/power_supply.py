@@ -21,13 +21,18 @@ class PowerSupply(Interface):
         """Declare attributes here
         """
 
-        self.enable = Attribute_JSON(
+        state_values = {
+            "off": False,
+            "on": True
+        }
+
+        self.state = Attribute_JSON(
             client          = self.client,
             base_topic      = self.base_topic,
-            name            = "enable",
+            name            = "state",
 
-            payload_factory = lambda v: json.dumps({"enable": bool(v)}).encode("utf-8"),
-            payload_parser  = lambda v: bool(json.loads(v.decode("utf-8"))["enable"])
+            payload_factory = lambda v: json.dumps({"state": "on" if v else "off"}).encode("utf-8"),
+            payload_parser  = lambda v: state_values[json.loads(v.decode("utf-8"))["state"]]
         )
 
         self.volts = Attribute_JSON(
@@ -36,7 +41,7 @@ class PowerSupply(Interface):
             name            = "volts",
 
             payload_factory = lambda v: json.dumps({"volts": float(v)}).encode("utf-8"),
-            payload_parser  = lambda v: bool(json.loads(v.decode("utf-8"))["volts"])
+            payload_parser  = lambda v: json.loads(v.decode("utf-8"))["volts"]["value"]
         )
 
         self.amps = Attribute_JSON(
@@ -45,5 +50,5 @@ class PowerSupply(Interface):
             name            = "amps",
 
             payload_factory = lambda v: json.dumps({"amps": float(v)}).encode("utf-8"),
-            payload_parser  = lambda v: json.loads(v.decode("utf-8"))["amps"]
+            payload_parser  = lambda v: json.loads(v.decode("utf-8"))["amps"]["value"]
         )
