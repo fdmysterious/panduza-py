@@ -15,5 +15,6 @@ client = Client(broker_alias="local")
 client.connect()
 interfaces = client.scan_interfaces()
 
-print(f"interfaces => {interfaces}")
+for iface in interfaces:
+    print(f"\t- {iface} [{interfaces[iface]}]")
 
