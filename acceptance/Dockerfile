@@ -12,12 +12,12 @@ RUN pip install paho-mqtt
 RUN pip install python-magic
 RUN pip install behave-html-formatter
 
-ENV PYTHONPATH="/work/panduza-py-platform:/work/panduza-py"
+ENV PYTHONPATH="panduza-py"
 
-RUN mkdir /work
+RUN mkdir /panduza-py
 
 RUN useradd test -u 1000
 
-WORKDIR /work
+WORKDIR /panduza-py
 
-ENTRYPOINT mosquitto -d && bash
+ENTRYPOINT bash
