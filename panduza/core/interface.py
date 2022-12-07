@@ -11,11 +11,11 @@ class Interface:
     ###########################################################################
     ###########################################################################
     
-    def __init__(self, alias=None, url=None, port=None, b_topic=None, pza_client=None):
+    def __init__(self, alias=None, addr=None, port=None, topic=None, client=None):
         """Constructor
         """
         self._initialized = False
-        self.init(alias, url, port, b_topic, pza_client)
+        self.init(alias, addr, port, topic, client)
 
     ###########################################################################
     ###########################################################################
@@ -26,26 +26,26 @@ class Interface:
     ###########################################################################
     ###########################################################################
 
-    def init(self, alias=None, url=None, port=None, b_topic=None, pza_client=None):
+    def init(self, alias=None, addr=None, port=None, topic=None, client=None):
         """Initialization of the interface
         """
         # Wait for later initialization
-        if alias==None and url==None and port==None and b_topic==None and pza_client==None:
+        if alias==None and addr==None and port==None and topic==None and client==None:
             return
 
         #
-        if pza_client != None:
-            self.client = pza_client
-            self.base_topic = b_topic
+        if client != None:
+            self.client = client
+            self.topic = topic
 
         # Build a new client
         else:
             if alias:
                 self.client = Client(interface_alias=alias)
-                self.base_topic = Core.BaseTopicFromAlias(alias)
+                self.topic  = Core.BaseTopicFromAlias(alias)
             else:
-                self.base_topic = b_topic
-                self.client = Client(url=url, port=port)
+                self.topic  = topic
+                self.client = Client(url=addr, port=port)
 
         # 
         if not self.client.is_connected:
@@ -53,7 +53,7 @@ class Interface:
 
         
         # #
-        # self.heart_beat_monitoring = HeartBeatMonitoring(self.client, self.base_topic)
+        # self.heart_beat_monitoring = HeartBeatMonitoring(self.client, self.topic)
         
 
         # Initialization ok
@@ -61,6 +61,16 @@ class Interface:
 
         #
         self._post_initialization()
+
+
+    ###########################################################################
+    ###########################################################################
+
+    def add_attribute(self, attribute):
+        # Append fields as attributes
+        attribute.set_interface(self)
+        setattr(self, attribute.name, attribute)
+        return attribute
 
     ###########################################################################
     ###########################################################################
@@ -93,7 +103,7 @@ class Interface:
         """
         """
         print("enableHeartBeatMonitoring ::: DEPRECATED !!!!!!!!!")
-        # self.client.subscribe(self.base_topic + "/info")
+        # self.client.subscribe(self.topic + "/info")
         # self.HBM = { "alive": False, "enabled": True, "heartbeat": time.time() }
 
     ###########################################################################
@@ -101,7 +111,7 @@ class Interface:
 
     def disableHeartBeatMonitoring(self):
         print("disableHeartBeatMonitoring ::: DEPRECATED !!!!!!!!!")
-        # self.client.unsubscribe(self.base_topic + "/info")
+        # self.client.unsubscribe(self.topic + "/info")
         # self.HBM = { "enabled": False }
 
     ###########################################################################

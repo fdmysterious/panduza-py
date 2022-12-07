@@ -9,43 +9,48 @@ from fixtures.interface import interface_io
 from fixtures.interface import interface_psu
 from fixtures.interface import interface_file
 
-from actions.platform import platform_start, platform_stop
+from fixtures.broker_mosquitto import fixture_broker, fixture_mqtt_listener
 
 ###############################################################################
 ###############################################################################
 
-ACTION_PLATFORM_START="action.platform_start."
+FIX_NAME_BROKER="fixture.broker."
 
-def before_tag(context, tag):
+def before_tag(ctx, tag):
     """Execute before each tag
-    """    
+    """
+
+    
     #
     # Process fixture tags
     #
     if tag.startswith("fixture.interface.io"):
         name = tag.replace("fixture.interface.io.", "")
-        use_fixture(interface_io, context, name=name)
+        use_fixture(interface_io, ctx, name=name)
     elif tag.startswith("fixture.interface.psu"):
         name = tag.replace("fixture.interface.psu.", "")
-        use_fixture(interface_psu, context, name=name)
+        use_fixture(interface_psu, ctx, name=name)
     elif tag.startswith("fixture.interface.file"):
         name = tag.replace("fixture.interface.file.", "")
-        use_fixture(interface_file, context, name=name)
+        use_fixture(interface_file, ctx, name=name)
     elif tag.startswith("fixture.client"):
         name = tag.replace("fixture.client.", "")
-        use_fixture(client, context, name=name)
-    #
-    # Process action tags
-    #
-    elif tag.startswith(ACTION_PLATFORM_START):
-        treefile = tag.replace(ACTION_PLATFORM_START, "")
-        platform_start(context, treefile)
+        use_fixture(client, ctx, name=name)
+    
+    elif tag.startswith("fixture.broker."):
+        config_file = tag.replace("fixture.broker.", "")
+        use_fixture(fixture_broker, ctx, config_file=config_file)
+    elif tag.startswith("fixture.mqtt-listener"):
+        use_fixture(fixture_mqtt_listener, ctx)
+
+
+    
 
 
 ###############################################################################
 ###############################################################################
 
-def before_all(context):
+def before_all(ctx):
     """Function executed before anything else
     """
     # Make sure that the directory of the acceptance report exists
@@ -54,14 +59,16 @@ def before_all(context):
     # Enable logging
     # logging.basicConfig(level=logging.DEBUG)
 
+    ctx.TEST_BROKER_ADDR="localhost"
+    ctx.TEST_BROKER_PORT=1883
+
 ###############################################################################
 ###############################################################################
 
-def after_all(context):
-    """After all tests
-    """
-    # Stop running platform
-    platform_stop(context)
+# def after_all(context):
+#     """After all tests
+#     """
+#     pass
     
     
         

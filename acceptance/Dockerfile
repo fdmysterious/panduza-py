@@ -11,8 +11,9 @@ RUN pip install loguru
 RUN pip install paho-mqtt
 RUN pip install python-magic
 RUN pip install behave-html-formatter
+RUN pip install psutil
 
-ENV PYTHONPATH="panduza-py"
+ENV PYTHONPATH="/panduza-py"
 
 RUN mkdir /panduza-py
 

@@ -140,6 +140,7 @@ class Client:
         request = self.client.publish(topic, payload, qos=qos, retain=False)
         request.wait_for_publish()
 
+
     def publish_json(self, topic, req: dict, qos=0):
         """Helper to publish json messages
         """
@@ -148,7 +149,7 @@ class Client:
             payload=json.dumps(req).encode("utf-8"),
             qos=qos
         )
-        request.wait_for_publish()
+        # request.wait_for_publish()
 
     # ┌────────────────────────────────────────┐
     # │ Register/Unregister listener           │

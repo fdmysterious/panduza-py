@@ -5,31 +5,18 @@ Feature: API_PSU
     # -----------------------------------------------------------------------------
     # -----------------------------------------------------------------------------
     # -----------------------------------------------------------------------------
-    Rule: API_PSU must be comptabile with the discovery process
+    Rule: API_PSU must be able to manage the state of the power supply
 
-        # @fixture.client.test
-        Scenario: Check scan information
-            Given core aliases loaded with file "io_alias.json"
-            # Given a client "test" initialized with the mqtt test broker alias:"local_test"
-            # When  the client "test" start the connection
-            # And   the client "test" scan the interfaces
-            # Then  interface "pza/test/psu_fake/Pikachu" contains information type == "psu" and version == "1.0"
-
-    # # -----------------------------------------------------------------------------
-    # # -----------------------------------------------------------------------------
-    # # -----------------------------------------------------------------------------
-    # Rule: API_PSU must be able to manage the state of the power supply
-
-    #     The power supply state management is done through 2 symmetrical topics.
-
-    #     @fixture.interface.psu.test
-    #     Scenario: Try to change and read back the state
-    #         Given core aliases loaded with file "psu_alias.json"
-    #         And   psu interface "test" initialized with alias "Pikachu"
-    #         When  psu interface "test" change power supply state to "on"
-    #         Then  psu interface "test" state is "on"
-    #         When  psu interface "test" change power supply state to "off"
-    #         Then  psu interface "test" state is "off"
+        @fixture.broker.local
+        @fixture.mqtt-listener
+        @fixture.interface.psu.test
+        Scenario: Try to change the state from the field
+            Given the psu interface "test" initialized on test broker with topic "pza/machine/group/psu_name"
+            When  the psu interface "test" method *XXX.state.value.set* is called with value "on"
+            Then  the broker must recieve '{"state": {"value": "on"}}' on topic 'pza/machine/group/psu_name/cmds/set'
+            When  the psu interface "test" method *XXX.state.value.set* is called with value "off"
+            Then  the broker must recieve '{"state": {"value": "off"}}' on topic 'pza/machine/group/psu_name/cmds/set'
+    
 
     # # -----------------------------------------------------------------------------
     # # -----------------------------------------------------------------------------

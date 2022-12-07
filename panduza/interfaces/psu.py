@@ -1,8 +1,7 @@
 import json
 import threading
 from ..core import Interface
-from ..core import Attribute_JSON
-from ..core import Interface, Attribute, EnsureError
+from ..core import Interface, Attribute, EnsureError, Field
 
 # -----------------------------------------------------------------------------
 
@@ -95,7 +94,7 @@ class PsuNumericAttribute(Attribute):
                     retry-=1
 
             if self.__value != v:
-                raise RuntimeError(f"Attribute {self.name} for {self.base_topic}: cannot set to '{v}', got '{self.__value}'")
+                raise RuntimeError(f"Attribute {self.name} for {self.topic}: cannot set to '{v}', got '{self.__value}'")
 
 # -----------------------------------------------------------------------------
 
@@ -117,58 +116,66 @@ def state_string_to_bool(str_v):
 
 class Psu(Interface):
     """Interface to manage power supplies
-
-    
     """
 
-    def __init__(self, alias=None, url=None, port=None, b_topic=None, pza_client=None):
+    def __init__(self, alias=None, addr=None, port=None, topic=None, client=None):
         """! Constructor
         """
-        super().__init__(alias, url, port, b_topic, pza_client)
-
+        super().__init__(alias, addr, port, topic, client)
 
 
     def _post_initialization(self):
         """! Declare attributes here
         """
-
-        self.state = Attribute_JSON(
-            client          = self.client,
-            base_topic      = self.base_topic,
-            name            = "state",
-
-            payload_factory = lambda v: json.dumps({"state": state_bool_to_string(v)}).encode("utf-8"),
-            payload_parser  = lambda v: state_string_to_bool(json.loads(v.decode("utf-8"))["state"])
+        # === STATE ===
+        self.add_attribute(
+            Attribute(
+                name = "state"
+            )
+        ).add_field(
+            Field(
+                name = "value"
+            )
+        )
+        # === VOLTS ===
+        self.add_attribute(
+            Attribute(
+                name = "volts"
+            )
+        ).add_field(
+            Field(
+                name = "value"
+            )
         )
 
 
-        self.volts = Attribute_JSON(
-            client          = self.client,
-            base_topic      = self.base_topic,
-            name            = "volts",
+        # self.volts = Attribute_JSON(
+        #     client          = self.client,
+        #     base_topic      = self.topic,
+        #     name            = "volts",
 
-            payload_factory = lambda v: json.dumps({"volts": float(v)}).encode("utf-8"),
-            payload_parser  = lambda v: json.loads(v.decode("utf-8"))["volts"]
-        )
+        #     payload_factory = lambda v: json.dumps({"volts": float(v)}).encode("utf-8"),
+        #     payload_parser  = lambda v: json.loads(v.decode("utf-8"))["volts"]
+        # )
 
-        self.amps = Attribute_JSON(
-            client          = self.client,
-            base_topic      = self.base_topic,
-            name            = "amps",
+        # self.amps = Attribute_JSON(
+        #     client          = self.client,
+        #     base_topic      = self.topic,
+        #     name            = "amps",
 
-            payload_factory = lambda v: json.dumps({"amps": float(v)}).encode("utf-8"),
-            payload_parser  = lambda v: json.loads(v.decode("utf-8"))["amps"]
-        )
+        #     payload_factory = lambda v: json.dumps({"amps": float(v)}).encode("utf-8"),
+        #     payload_parser  = lambda v: json.loads(v.decode("utf-8"))["amps"]
+        # )
 
 
         # self.volts = PsuNumericAttribute(
         #     pza_client      = self.client,
-        #     b_topic         = self.base_topic,
+        #     b_topic         = self.topic,
         #     name            = "volts"
         # )
 
         # self.amps = PsuNumericAttribute(
         #     pza_client      = self.client,
-        #     b_topic         = self.base_topic,
+        #     b_topic         = self.topic,
         #     name            = "amps"
         # )

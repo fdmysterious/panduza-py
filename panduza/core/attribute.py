@@ -8,6 +8,7 @@ from typing      import Optional, Callable, Set
 from dataclasses import dataclass, field
 
 from .client import Client
+from .interface import Interface
 
 # -----------------------------------------------------------------------------
 
@@ -25,27 +26,43 @@ class EnsureError(Exception):
 
 @dataclass
 class Attribute:
-    client: Client
-    base_topic: str
     name: str
-
-    payload_parser: Callable[[bytes],  any] = field(repr=False, hash=False, compare=False, default=lambda v:v)
-    payload_factory: Callable[[bytes], any] = field(repr=False, hash=False, compare=False, default=lambda v:json.dumps(v).encode("utf-8"))
-
+    interface: Interface = None
+    
     def __post_init__(self):
-        self._topic_atts_get = os.path.join(self.base_topic, "atts", self.name       )
-        self._topic_cmds_set = os.path.join(self.base_topic, "cmds", self.name, "set")
-        self._log            = logging.getLogger(f"PZA {self.name} attribute for {self.base_topic}")
+        """Initialize topics and logging
+        """
+        # self._topic_atts_get = os.path.join(self.base_topic, "atts", self.name       )
+        
+        # self._log            = logging.getLogger(f"PZA {self.name} attribute for {self.base_topic}")
 
+
+
+    def set_interface(self, interface):
+        self.interface = interface
+        self._topic_cmds_set = os.path.join(self.interface.topic, "cmds", "set")
+
+
+    def add_field(self, field):
+        field.set_attribute(self)
+        setattr(self, field.name, field)
+        return self
 
     @abstractmethod
     def get(self):
         pass
 
-    @abstractmethod
-    def set(self):
-        pass
+    def set(self, **kwargs):
+        """Send a set command
+        """
+        pyl={}
+        for key, value in kwargs.items():
+            # TODO Check if the key match a field name
 
+            pyl[key] = value
+        cmd={}
+        cmd[self.name] = pyl
+        self.interface.client.publish_json(self._topic_cmds_set, cmd)
 
 ###############################################################################
 ###############################################################################

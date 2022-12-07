@@ -20,7 +20,7 @@ def step_set_state(psu, state, wait_s=3):
     """Step to set the state
     """
     print(f"- set state to {state}")
-    psu.state.set(state)
+    psu.state.value.set(state)
     if CHECK_USER_INPUT:
         in_data = input("Ok or Ko ? [O/k]")
     else:  
@@ -32,7 +32,7 @@ def step_set_volts(psu, value, wait_s=3):
     """Step to set the voltage
     """
     print(f"- set volts to {value}")
-    psu.volts.set(value)
+    psu.volts.value.set(value)
     if CHECK_USER_INPUT:
         in_data = input("Ok or Ko ? [O/k]")
     else:  
@@ -44,7 +44,7 @@ def step_set_amps(psu, value, wait_s=3):
     """Step to set the amps
     """
     print(f"- set amps to {value}")
-    psu.amps.set(value)
+    psu.amps.value.set(value)
     if CHECK_USER_INPUT:
         in_data = input("Ok or Ko ? [O/k]")
     else:  
