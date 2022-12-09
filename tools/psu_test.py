@@ -5,6 +5,7 @@ WARNING : !!! Make sur your Power Supply are not connected to any board !!!
 # Import
 import sys
 import time 
+import logging
 import argparse
 from panduza import Core, Client, Psu
 
@@ -13,7 +14,8 @@ BROKER_ADDR="localhost"
 BROKER_PORT=1883
 CHECK_USER_INPUT=True
 RUN_TEST=False
-
+# IFACE_MAX=10000
+# logging.basicConfig(encoding='utf-8', level=logging.DEBUG)
 
 
 def step_set_state(psu, state, wait_s=3):
@@ -22,7 +24,7 @@ def step_set_state(psu, state, wait_s=3):
     print(f"- set state to {state}")
     psu.state.value.set(state)
     if CHECK_USER_INPUT:
-        in_data = input("Ok or Ko ? [O/k]")
+        in_data = input("Ok or Ko ? [O/k] ")
     else:  
         time.sleep(wait_s)
 
@@ -34,7 +36,7 @@ def step_set_volts(psu, value, wait_s=3):
     print(f"- set volts to {value}")
     psu.volts.value.set(value)
     if CHECK_USER_INPUT:
-        in_data = input("Ok or Ko ? [O/k]")
+        in_data = input("Ok or Ko ? [O/k] ")
     else:  
         time.sleep(wait_s)
 
@@ -46,19 +48,19 @@ def step_set_amps(psu, value, wait_s=3):
     print(f"- set amps to {value}")
     psu.amps.value.set(value)
     if CHECK_USER_INPUT:
-        in_data = input("Ok or Ko ? [O/k]")
+        in_data = input("Ok or Ko ? [O/k] ")
     else:  
         time.sleep(wait_s)
 
 
 
-def run_test_on_interface(client, b_topic):
+def run_test_on_interface(client, topic):
     """Test 1 power supply
     """
-    print(f"### Test : ({b_topic}) ###")
+    print(f"### Test : ({topic}) ###")
 
     # Create interface
-    psu = Psu(b_topic=b_topic, pza_client=client)
+    psu = Psu(topic=topic, client=client)
 
     # ===
     step_set_volts(psu, 5)
@@ -70,8 +72,8 @@ def run_test_on_interface(client, b_topic):
     step_set_amps(psu, 3)
 
     # ===
-    step_set_state(psu, True)
-    step_set_state(psu, False)
+    step_set_state(psu, "on")
+    step_set_state(psu, "off")
 
 
 
@@ -84,6 +86,7 @@ if __name__ == '__main__':
                         description = 'Perform test configuration on PSU connected to the broker')
     parser.add_argument('-a', '--broker-address')
     parser.add_argument('-p', '--broker-port')
+    # parser.add_argument('-m', '--max')
     parser.add_argument('-y', '--yes', action='store_true')
     args = parser.parse_args()
     if args.broker_address:
@@ -104,7 +107,7 @@ if __name__ == '__main__':
         print("! This script will set random voltage and trigger all the power    !")
         print("! supplies connected to the given broker                           !")
         print(f">>>>> MQTT Broker : {BROKER_ADDR}:{BROKER_PORT} ")
-        in_data = input("Continue ? [y/N]")
+        in_data = input("Continue ? [y/N] ")
         if in_data == 'y':
             RUN_TEST=True
 

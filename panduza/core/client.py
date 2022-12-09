@@ -237,11 +237,17 @@ class Client:
                 n += len(self._listeners[l]["callbacks"])
         return n
 
+
+    ###########################################################################
+    ###########################################################################
+
     def __store_scan_result(self, topic, payload):
+        """
+        """
         if topic == None:
             return
 
-        base_topic = topic[:-len("/info")]
+        base_topic = topic[:-len("/atts/info")]
         info = json.loads(payload.decode("utf-8"))
 
         if base_topic not in self.__results and fnmatch(info["type"], self.__type_filter):
@@ -258,14 +264,14 @@ class Client:
         self.__type_filter = type_filter
 
         # Subscribe to interfaces info responses
-        self.subscribe("pza/+/+/+/info", self.__store_scan_result)
+        self.subscribe("pza/+/+/+/atts/info", self.__store_scan_result)
 
         # Send the global discovery request and wait for answers
         self.publish("pza", u"*", qos=0)
         time.sleep(4)
 
         # cleanup and return
-        self.unsubscribe("pza/+/+/+/info")
+        self.unsubscribe("pza/+/+/+/atts/info")
         return self.__results
 
     ###########################################################################
