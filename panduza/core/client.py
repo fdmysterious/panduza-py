@@ -250,8 +250,8 @@ class Client:
         base_topic = topic[:-len("/atts/info")]
         info = json.loads(payload.decode("utf-8"))
 
-        if base_topic not in self.__results and fnmatch(info["type"], self.__type_filter):
-            self.__results[base_topic] = info
+        if base_topic not in self.__results and fnmatch(info["info"]["type"], self.__type_filter):
+            self.__results[base_topic] = info["info"]
 
     ###########################################################################
     ###########################################################################
