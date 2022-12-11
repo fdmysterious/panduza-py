@@ -126,34 +126,12 @@ if __name__ == '__main__':
     for iface in interfaces:
         iface_type = interfaces[iface]["type"]
         if iface_type == "psu":
-            run_test_on_interface(client, iface)
+            iface_state = interfaces[iface]["state"]
+            if iface_state == "run":
+                run_test_on_interface(client, iface)
+            else:
+                print(f"### NOT READY : ({iface}) ###")
+                print(f"- in state '{iface_state}'")
+                if iface_state == "err":
+                    print(f"- ERROR > {interfaces[iface]['error']}")
 
-
-
-
-    # # Load Aliases
-    # # **acceptance/features/rsc/psu_alias.json**
-    # Core.LoadAliases({
-    #     "local_test": {
-    #         "url": "localhost",
-    #         "port": 1883,
-    #         "interfaces": {
-    #             "Pikachu": "pza/test/hm310t/power"
-    #         }
-    #     }
-    # })
-
-
-    # # Set voltage
-
-
-
-
-
-    # psu.state.set(True)
-    # time.sleep(3)
-    # psu.state.set(False)
-    # time.sleep(3)
-    # psu.state.set(True, ensure=True)
-    # time.sleep(3)
-    # psu.state.set(False, ensure=True)
