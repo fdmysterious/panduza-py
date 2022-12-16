@@ -34,7 +34,7 @@ class Field:
     def set(self, val):
         """
         """
-        self.attribute.set(value=val)
+        self.attribute.set(**{self.name: val})
 
 
 

@@ -5,5 +5,5 @@ from .core import EnsureError
 
 from .interfaces import Io
 from .interfaces import Psu
-from .interfaces import File
+from .interfaces import ModbusClient
 

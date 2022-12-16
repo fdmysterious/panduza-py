@@ -1,7 +1,7 @@
 import logging
 from panduza import Core, Client
 
-logging.basicConfig(level=logging.DEBUG)
+# logging.basicConfig(level=logging.DEBUG)
 
 Core.LoadAliases({
     "local": {
