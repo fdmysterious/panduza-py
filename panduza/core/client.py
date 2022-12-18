@@ -270,6 +270,17 @@ class Client:
 
     def scan_interfaces(self, type_filter="*"):
         """Scan broker panduza interfaces and return them
+
+        The fast scan is based on the fact that each platform will declare a
+        special interface with type *platform*. In the *info* topic of this
+        interface there is a special *interfaces* field, it contains the number
+        of interface managed by the platfrom. 
+        
+        So when you start a scan with * in pza, you create 2 counters
+        - one that is incremented (+1) for each interface that respond
+        - one that is incremented (+info/interfaces) when an interface *platform* respond
+
+        When both counter are equal, you are sure that you've got all the interfaces
         """
         # Init
         self.__scan_mutex = threading.Lock()
