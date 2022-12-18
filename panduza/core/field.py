@@ -17,27 +17,42 @@ from .attribute import Attribute
 
 @dataclass
 class Field:
-    
+    # Name of the field
     name: str
+    # Parent attribute
     attribute: Attribute = None
 
     def __post_init__(self):
-        """Initialize topics and logging
         """
-        self.value = "off"
+        """
+        self.value = None
 
     def set_attribute(self, attribute):
-        """
+        """Attach the field to its parent attribute
         """
         self.attribute = attribute
 
-    def set(self, val):
+# -----------------------------------------------------------------------------
+
+@dataclass
+class RoField(Field):
+    
+    def get(self):
         """
+        """
+        # self.attribute.set(**{self.name: val})
+        pass
+
+
+# -----------------------------------------------------------------------------
+
+@dataclass
+class RwField(RoField):
+    """Read Write Field
+    """
+    
+    def set(self, val):
+        """To write the field
         """
         self.attribute.set(**{self.name: val})
-
-
-
-    
- 
 

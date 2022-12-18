@@ -1,7 +1,7 @@
 import json
 import threading
 from ..core import Interface
-from ..core import Interface, Attribute, EnsureError, Field
+from ..core import Interface, Attribute, EnsureError, RoField, RwField
 
 
 class Psu(Interface):
@@ -23,7 +23,7 @@ class Psu(Interface):
                 name = "state"
             )
         ).add_field(
-            Field(
+            RwField(
                 name = "value"
             )
         )
@@ -33,7 +33,7 @@ class Psu(Interface):
                 name = "volts"
             )
         ).add_field(
-            Field(
+            RwField(
                 name = "value"
             )
         )
@@ -43,7 +43,7 @@ class Psu(Interface):
                 name = "amps"
             )
         ).add_field(
-            Field(
+            RwField(
                 name = "value"
             )
         )

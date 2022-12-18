@@ -4,9 +4,11 @@ import paho.mqtt.client as mqtt
 
 from .core import Core
 from .client import Client
-from .heartbeat import HeartBeatMonitoring
+
 
 class Interface:
+    """Access point to a Panduza interface
+    """
 
     ###########################################################################
     ###########################################################################
@@ -96,38 +98,20 @@ class Interface:
         """
         return payload.decode("utf-8")
 
-    ###########################################################################
-    ###########################################################################
+    # ###########################################################################
+    # ###########################################################################
 
-    def enableHeartBeatMonitoring(self):
-        """
-        """
-        print("enableHeartBeatMonitoring ::: DEPRECATED !!!!!!!!!")
-        # self.client.subscribe(self.topic + "/info")
-        # self.HBM = { "alive": False, "enabled": True, "heartbeat": time.time() }
-
-    ###########################################################################
-    ###########################################################################
-
-    def disableHeartBeatMonitoring(self):
-        print("disableHeartBeatMonitoring ::: DEPRECATED !!!!!!!!!")
-        # self.client.unsubscribe(self.topic + "/info")
-        # self.HBM = { "enabled": False }
-
-    ###########################################################################
-    ###########################################################################
-
-    def isAlive(self):
-        """
-        """
-        if not self.heart_beat_monitoring.enabled:
-            raise Exception("watchdog not enabled on the interface")
+    # def isAlive(self):
+    #     """
+    #     """
+    #     if not self.heart_beat_monitoring.enabled:
+    #         raise Exception("watchdog not enabled on the interface")
         
-        t0 = time.time()
-        while (time.time() - t0 < 3) and not self.heart_beat_monitoring.alive:
-            pass
+    #     t0 = time.time()
+    #     while (time.time() - t0 < 3) and not self.heart_beat_monitoring.alive:
+    #         pass
 
-        return self.heart_beat_monitoring.alive
+    #     return self.heart_beat_monitoring.alive
 
     ###########################################################################
     ###########################################################################

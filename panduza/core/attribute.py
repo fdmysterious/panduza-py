@@ -35,7 +35,7 @@ class Attribute:
         # self._topic_atts_get = os.path.join(self.base_topic, "atts", self.name       )
         
         # self._log            = logging.getLogger(f"PZA {self.name} attribute for {self.base_topic}")
-
+        pass
 
 
     def set_interface(self, interface):
@@ -44,6 +44,8 @@ class Attribute:
 
 
     def add_field(self, field):
+        """Append a field to the attribute
+        """
         field.set_attribute(self)
         setattr(self, field.name, field)
         return self
