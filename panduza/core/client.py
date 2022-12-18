@@ -240,67 +240,60 @@ class Client:
 
     ###########################################################################
     ###########################################################################
+    #
+    # SCAN INTERFACE MANAGEMENT
+    #
+    ###########################################################################
+    ###########################################################################
 
     def __store_scan_result(self, topic, payload):
         """
         """
+        self.__scan_mutex.acquire()
+
         if topic == None:
             return
 
         base_topic = topic[:-len("/atts/info")]
         info = json.loads(payload.decode("utf-8"))
 
-        if base_topic not in self.__results and fnmatch(info["info"]["type"], self.__type_filter):
-            self.__results[base_topic] = info["info"]
+        if info["info"]["type"] == "platform":
+            self.__scan_count_platform += info["info"]["interfaces"]
+            self.__scan_count_interfaces += 1
+        else:
+            self.__scan_count_interfaces += 1
 
-    ###########################################################################
-    ###########################################################################
+        if base_topic not in self.__scan_results and fnmatch(info["info"]["type"], self.__scan_type_filter):
+            self.__scan_results[base_topic] = info["info"]
+
+        self.__scan_mutex.release()
 
     def scan_interfaces(self, type_filter="*"):
         """Scan broker panduza interfaces and return them
         """
         # Init
-        self.__results = {}
-        self.__type_filter = type_filter
+        self.__scan_mutex = threading.Lock()
+        self.__scan_results = {}
+        self.__scan_count_platform = 0
+        self.__scan_count_interfaces = 0
+        self.__scan_type_filter = type_filter
 
         # Subscribe to interfaces info responses
         self.subscribe("pza/+/+/+/atts/info", self.__store_scan_result)
 
         # Send the global discovery request and wait for answers
         self.publish("pza", u"*", qos=0)
-        time.sleep(4)
+        
+
+        continue_scan = True
+        while continue_scan:
+            time.sleep(0.25)
+            self.__scan_mutex.acquire()
+            continue_scan = (self.__scan_count_platform == 0) or (self.__scan_count_platform != self.__scan_count_interfaces)
+            self.__scan_mutex.release()
+
 
         # cleanup and return
         self.unsubscribe("pza/+/+/+/atts/info")
-        return self.__results
+        return self.__scan_results
 
-    ###########################################################################
-    ###########################################################################
-
-    # ┌────────────────────────────────────────┐
-    # │ Handy stuff                            │
-    # └────────────────────────────────────────┘
-
-    # def retained_atts_get(self, topic: str, timeout=5):
-    #    """
-    #    Supposes atts last message have the retained flag
-    #    Returns the raw payload
-    #    """
-
-    #    self.log.debug(f"Retrieve atts from topic {topic}")
-
-    #    v    = None
-    #    q    = queue.Queue()
-    #    clbk = lambda payload: q.put(payload)
-
-    #    # Subscribe to atts topic
-    #    self.subscribe(topic, clbk)
-
-    #    # Wait for value
-    #    payload = q.get(timeout=timeout)
-
-    #    # Unsubscribe from topic
-    #    self.unsubscribe(topic, clbk)
-
-    #    # Return value
-    #    return payload
