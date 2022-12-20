@@ -1,0 +1,15 @@
+{
+    "machine": "rename this machine",
+    "brokers": {
+        "test_broker": {
+            "addr": "localhost",
+            "port": 1883,
+            "interfaces": [
+                {
+                    "name": "test io",
+                    "driver": "py.io_fake"
+                }
+            ]
+        }
+    }
+}

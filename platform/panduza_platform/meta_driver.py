@@ -1,0 +1,393 @@
+import abc
+import sys
+import time
+import json
+import asyncio
+import traceback
+import threading
+import paho.mqtt.client as mqtt
+from loguru import logger
+
+class MetaDriver(metaclass=abc.ABCMeta):
+    """Mother class for all the python meta drivers
+
+    **Execution order**
+
+    - initialize (called by the meta_platform, from the main thread)
+    """
+
+    # Time in error state before trying a restart of the interface
+    ERROR_TIME_BEFORE_RETRY_S = 10
+
+    ###########################################################################
+    ###########################################################################
+
+    def initialize(self, platform, machine, broker, tree):
+        """Post initialization
+        """
+        # Basics
+        self._platform = platform
+        self._machine = machine
+        self._broker = broker
+        self._tree = tree
+
+        # Store attribute representation
+        self.__drv_atts = { }
+
+        # Current state of the driver
+        self.__drv_state = 'ini'
+        self.__drv_state_prev = None
+
+        # Time where the state started
+        self._state_started_time = 0
+
+        # Check for name in the driver tree
+        if not ("name" in self._tree):
+            raise Exception("Name of the interface is required !")
+
+        # Init name and logger
+        self._name = self._tree["name"]
+        self.log = logger.bind(driver_name=self._name)
+
+        # Check for name in the driver tree
+        if not ("info" in self._PZADRV_config()):
+            raise Exception("Config must have *info* in there *_PZADRV_config*")
+
+        # Info attribute
+        self.__drv_atts["info"] = self._PZADRV_config()["info"]
+        
+        # Topic base
+        group_name = self._tree["driver"]
+        if "group" in self._tree:
+            group_name = self._tree["group"]
+        self.topic = "pza/" + self._machine + "/" + group_name + "/" + self._name
+        self.topic_size = len(self.topic)
+
+        # cmds
+        self.topic_cmds = self.topic + "/cmds/"
+        self.topic_cmds_size = len(self.topic_cmds)
+
+        # atts
+        self.topic_atts = self.topic + "/atts/"
+        self.topic_atts_size = len(self.topic_atts)
+        self.topic_atts_info = self.topic_atts + "info"
+
+    ###########################################################################
+    ###########################################################################
+
+    def start(self):
+        """Start the driver engine
+        """
+        # Mqtt connection
+        self.mqtt_client = mqtt.Client()
+        self.mqtt_client.on_message = self.__on_message
+
+        try:
+            # log
+            self.log.info("Interface starting...")
+
+            # Keep alive flag
+            self.alive = True
+
+            # Start connection
+            self.mqtt_client.connect(self._broker.addr, self._broker.port)
+
+            # Start the mqtt client
+            self.mqtt_client.loop_start()
+
+            #
+            self.__subscribe_topics()
+
+            # Create an event loop and start the driver
+            self.evloop = asyncio.new_event_loop()
+            self.evloop.run_until_complete(self.__run_state_machine())
+
+        # except AttributeError as err:
+        #     mog.error("Critical error on the serial interface %s (%s)" % (self._name, err))
+        # except ConnectionRefusedError as err:
+        #     mog.error("Critical error on the driver, MQTT connection failed %s (%s)" % (self._name, err))
+        #     mog.error("- you can check if the port %d is open on the broker %s" % (self.bridge.port, self.bridge.port))
+        except:
+            e = sys.exc_info()[0]
+            self.log.exception("Critical error on driver %s (%s)" % (self._name, e))
+
+        # Info
+        logger.info("Interface '{}' stopped !", self._name)
+
+    ###########################################################################
+    ###########################################################################
+
+    def stop(self):
+        """Request to stop the driver thread
+        """
+        # log
+        self.log.info("Stop requested !")
+        # Keep alive flag
+        self.alive = False
+
+    ###########################################################################
+    ###########################################################################
+
+    async def __run_state_machine(self):
+        """Core of the state machine
+        """
+        # log
+        self.log.info("Interface started !")
+
+        # States
+        __states = {
+            'ini': self.__drv_state_ini,
+            'run': self.__drv_state_run,
+            'err': self.__drv_state_err
+        }
+
+        # Main loop
+        while self.alive:
+            # Log state transition
+            if self.__drv_state != self.__drv_state_prev:
+                self._state_started_time = time.time()
+                self.log.debug(f"STATE CHANGE ::: {self.__drv_state_prev} => {self.__drv_state}")
+                self.__drv_state_prev = self.__drv_state
+                # Manage the errstring
+                if self.__drv_state == "err":
+                    self.log.error(f"ERROR ::: {self.__err_string}")
+                    self._update_attribute("info", "error", self.__err_string, False)
+                else:
+                    self._remove_attribute_field("info", "error", False)
+                # update the state
+                self._update_attribute("info", "state", self.__drv_state)
+
+            # Execute the correct callback
+            if not (self.__drv_state in __states):
+                # error critique !
+                pass
+            await __states[self.__drv_state]()
+            
+            #
+            time.sleep(0.001)
+
+    ###########################################################################
+    ###########################################################################
+
+    async def __drv_state_ini(self):
+        """
+        """
+        try:
+            self._PZADRV_loop_ini(self._tree)
+        except Exception as e:
+            print(traceback.format_exc())
+            self._pzadrv_error_detected(str(e))
+
+    async def __drv_state_run(self):
+        """
+        """
+        try:
+            self._PZADRV_loop_run()
+        except Exception as e:
+            print(traceback.format_exc())
+            self._pzadrv_error_detected(str(e))
+
+    async def __drv_state_err(self):
+        """
+        """
+        try:
+            self._PZADRV_loop_err()
+        except Exception as e:
+            self.log.error(str(e))
+
+    ###########################################################################
+    ###########################################################################
+
+    def __subscribe_topics(self):
+        """Subscribe to the required topics
+        """
+        # Register the common discovery topic 'pza'
+        self.mqtt_client.subscribe("pza")
+        # Register to all commands
+        self.mqtt_client.subscribe(self.topic_cmds + "#")
+
+    ###########################################################################
+    ###########################################################################
+    
+    def __on_message(self, client, userdata, msg):
+        """Callback to manage incomming mqtt messages
+        
+        Args:
+            client: from paho.mqtt.client
+            userdata: from paho.mqtt.client
+            msg: from paho.mqtt.client
+        """
+        # Get the topix string
+        topic_string = str(msg.topic)
+        
+        # Debug purpose
+        self.log.debug("NEW MSG > topic={} payload='{}' !", topic_string, msg.payload)
+
+        # Check if it is a discovery request
+        if topic_string == "pza":
+            # If the request is for all interfaces '*'
+            if msg.payload == b'*':
+                self.log.info("scan request received !")
+                self._push_attribute("info", 0, False) # heartbeat_pulse
+            # Else check if it is specific, there is an array in the payload
+            else:
+                # TODO
+                pass
+                # try:
+                #     specifics = self.payload_to_dict(msg.payload)
+                # except:
+                #     pass
+            return
+        
+        # Route to the handle for the command set
+        suffix = topic_string[self.topic_cmds_size:]
+        if suffix == "set":
+            self._PZADRV_cmds_set(msg.payload)
+
+    ###########################################################################
+    ###########################################################################
+
+    def _update_attribute(self, attribute, field, value, push=True):
+        """Function that update an attribute field
+        """
+        if not ( attribute in self.__drv_atts ):
+            self.__drv_atts[attribute] = dict()
+        self.__drv_atts[attribute][field] = value
+        # Push if requested
+        if push:
+            self._push_attribute(attribute)
+
+    ###########################################################################
+    ###########################################################################
+
+    def _remove_attribute_field(self, attribute, field, push=True):
+        """
+        """
+        # no attribute or no field with this name
+        if not ( attribute in self.__drv_atts ):
+            return
+        if not ( field in self.__drv_atts[attribute] ):
+            return
+        # delete the field
+        self.__drv_atts[attribute].pop(field)
+        # Push if requested
+        if push:
+            self._push_attribute(attribute)
+
+    ###########################################################################
+    ###########################################################################
+
+    def _push_attribute(self, attribute, qos = 0, retain = True):
+        """Publish the attribute
+        """
+        # Check for retain
+        do_retain=retain
+        if do_retain and attribute == "info":
+            do_retain=False
+
+        # topic
+        topic = self.topic_atts + attribute
+
+        # Payload
+        pdict = dict()
+        pdict[attribute] = self.__drv_atts[attribute]
+        payload = json.dumps(pdict)
+
+        # Debug purpose
+        self.log.debug(f"PUSH > topic={topic} payload='{payload}' retain='{do_retain}'")
+
+        # Publish
+        request = self.mqtt_client.publish(topic, payload, qos=qos, retain=do_retain)
+
+    ###########################################################################
+    ###########################################################################
+
+    def payload_to_dict(self, payload):
+        """ To parse json payload
+        """
+        return json.loads(payload.decode("utf-8"))
+
+    ###########################################################################
+    ###########################################################################
+
+    def payload_to_int(self, payload):
+        """
+        """
+        return int(payload.decode("utf-8"))
+
+    ###########################################################################
+    ###########################################################################
+
+    def payload_to_str(self, payload):
+        """
+        """
+        return payload.decode("utf-8")
+
+    ###########################################################################
+    ###########################################################################
+
+    def get_interface_instance_from_name(self, name):
+        """
+        """
+        return self._platform.get_interface_instance_from_name(name)
+
+    ###########################################################################
+    ###########################################################################
+    #
+    # FOR SUBCLASS USE ONLY
+    #
+    ###########################################################################
+    ###########################################################################
+
+    def _pzadrv_ini_success(self):
+        self.__drv_state = "run"
+
+    def _pzadrv_error_detected(self, err_string):
+        self.__drv_state = "err"
+        self.__err_string = err_string
+
+    def _pzadrv_restart(self):
+        self.__drv_state = "ini"
+
+    ###########################################################################
+    ###########################################################################
+    #
+    # TO OVERRIDE IN SUBCLASS
+    #
+    ###########################################################################
+    ###########################################################################
+
+    @abc.abstractmethod
+    def _PZADRV_config(self):
+        """
+        """
+        pass
+
+    @abc.abstractmethod
+    def _PZADRV_loop_ini(self, tree):
+        """
+        """
+        pass
+
+    @abc.abstractmethod
+    def _PZADRV_loop_run(self):
+        """
+        """
+        pass
+
+    def _PZADRV_loop_err(self):
+        """
+        """
+        elasped = time.time() - self._state_started_time
+        if elasped > MetaDriver.ERROR_TIME_BEFORE_RETRY_S:
+            self._pzadrv_restart()
+        else:
+            time.sleep(1)
+            self.log.debug(f"restart in { int(MetaDriver.ERROR_TIME_BEFORE_RETRY_S - elasped) }s")
+
+    @abc.abstractmethod
+    def _PZADRV_cmds_set(self, payload):
+        """Must apply the command on the driver
+        """
+        pass
+
