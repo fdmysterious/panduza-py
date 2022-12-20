@@ -1,6 +1,5 @@
 import time
-from loguru import logger
-from ..meta_driver import MetaDriver
+from ...meta_driver import MetaDriver
 
 class DriverPlatform(MetaDriver):
     """

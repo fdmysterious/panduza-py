@@ -1,7 +1,6 @@
 import time
-from loguru import logger
-from ..meta_driver import MetaDriver
-from ..connectors.modbus_client_serial import ConnectorModbusClientSerial
+from ...meta_driver import MetaDriver
+from ...connectors.modbus_client_serial import ConnectorModbusClientSerial
 
 class DriverModbusClient(MetaDriver):
     """

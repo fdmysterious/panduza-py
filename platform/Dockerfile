@@ -1,7 +1,7 @@
 FROM ubuntu:22.04
 
 # Attach to the repository
-LABEL org.opencontainers.image.source https://github.com/Panduza/panduza-py-platform
+LABEL org.opencontainers.image.source https://github.com/Panduza/panduza-py
 
 # Argument
 ARG PZA_PY_PLATFORM_MODE
