@@ -1,5 +1,4 @@
 import json
-from loguru import logger
 from ..meta_driver import MetaDriver
 
 class MetaDriverPsu(MetaDriver):

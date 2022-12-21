@@ -6,6 +6,7 @@ from panduza_platform.connectors.serial_tty import ConnectorSerialTty
 
 QL355P_USBID_VENDOR="103e"
 QL355P_USBID_MODEL="03e8"
+QL355P_SERIAL_BAUDRATE=19200
 QL355P_TTY_BASE="/dev/ttyUSB"
 
 STATE_VALUE_ENUM = { "on": True, "off": False }
@@ -14,7 +15,7 @@ AMPS_BOUNDS      = { "min": 0, "max":  5 }
 
 
 class DriverQL355P(MetaDriverPsu):
-    """
+    """Driver for the device QL355P from aim-TTI
     """
     
     ###########################################################################
@@ -40,6 +41,7 @@ class DriverQL355P(MetaDriverPsu):
         settings = dict() if "settings" not in tree else tree["settings"]
         settings["vendor"] = QL355P_USBID_VENDOR
         settings["model"] = QL355P_USBID_MODEL
+        settings["baudrate"] = QL355P_SERIAL_BAUDRATE
         settings["base_devname"] = QL355P_TTY_BASE
         
         # Get the connector
@@ -89,38 +91,30 @@ class DriverQL355P(MetaDriverPsu):
     def _PZADRV_PSU_read_state_value(self):
         return self.state
 
-    ###########################################################################
-    ###########################################################################
-
     def _PZADRV_PSU_write_state_value(self, v):
         self.state = v
         cmd = STATE_VALUE_ENUM[v]
         self.__write(f"OP1 {int(cmd)}")
 
-    ###########################################################################
-    ###########################################################################
-
     def _PZADRV_PSU_read_volts_value(self):
         return self.volts
-
-    ###########################################################################
-    ###########################################################################
 
     def _PZADRV_PSU_write_volts_value(self, v):
         self.volts = v
         self.__write(f"V1 {v:.3f}")
 
-    ###########################################################################
-    ###########################################################################
-
     def _PZADRV_PSU_read_amps_value(self):
         return self.amps
     
-    ###########################################################################
-    ###########################################################################
-
     def _PZADRV_PSU_write_amps_value(self, v):
         self.amps = v
         self.__write(f"I1 {v:.3f}")
 
+    ###########################################################################
+    ###########################################################################
+
+    def PZADRV_hunt():
+        """
+        """
+        return None
 
