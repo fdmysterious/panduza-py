@@ -1,7 +1,7 @@
 import abc
 
 
-class SerialBase(metaclass=abc.ABCMeta):
+class ConnectorSerialBase(metaclass=abc.ABCMeta):
     """
     """
 

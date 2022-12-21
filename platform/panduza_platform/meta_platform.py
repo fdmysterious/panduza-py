@@ -9,6 +9,9 @@ from sys import platform
 
 from .conf import PLATFORM_VERSION
 from .broker import Broker
+
+
+from .inbuilt import PZA_DRIVERS_LIST as INBUILT_DRIVERS
 from .drivers.std import PZA_DRIVERS_LIST as STD_DRIVERS
 from .drivers.fake import PZA_DRIVERS_LIST as FAKE_DRIVERS
 
@@ -234,6 +237,9 @@ class MetaPlatform:
             self.register_driver(drv)
         for drv in FAKE_DRIVERS:
             self.register_driver(drv)
+        for drv in INBUILT_DRIVERS:
+            self.register_driver(drv)
+            
 
     ###########################################################################
     ###########################################################################

@@ -1,7 +1,7 @@
 import pyudev
+from loguru import logger
 
-
-def TTYPortFromUsbInfo(vendor_id:str , product_id:str , serial=None, base_dev_tty="/dev/ttyACM"):
+def TTYPortFromUsbInfo(vendor_id:str , product_id:str , serial=None, base_devname="/dev/ttyACM"):
     """Find tty port from usb information
     """
     # Explore usb device with tty subsystem
@@ -14,7 +14,7 @@ def TTYPortFromUsbInfo(vendor_id:str , product_id:str , serial=None, base_dev_tt
         # logger.debug(f"{properties}")
 
         # Need to find the one with the DEVNAME corresponding to the /dev serial port
-        if 'DEVNAME' not in properties or not properties['DEVNAME'].startswith(base_dev_tty):
+        if 'DEVNAME' not in properties or not properties['DEVNAME'].startswith(base_devname):
             continue
 
         # Check vendor/product/serial
@@ -25,5 +25,59 @@ def TTYPortFromUsbInfo(vendor_id:str , product_id:str , serial=None, base_dev_tt
             else:
                 return properties["DEVNAME"]
 
-    raise Exception(f"ERROR: device tty for [{vendor_id}:{product_id}:{serial}:{base_dev_tty}] not found !")
+    raise Exception(f"ERROR: device tty for [{vendor_id}:{product_id}:{serial}:{base_devname}] not found !")
+
+
+
+
+
+def SerialPortFromUsbSetting(**kwargs):
+    """Find serial port from usb settings
+
+    :param base_devname:
+        base for the name of the serial port (sometimes usefull to match the correct interface)
+    :param \**kwargs:
+        See below
+
+    :Keyword Arguments:
+        * *vendor* (``str``) --
+            ID_VENDOR_ID
+        * *model* (``str``) --
+            ID_MODEL_ID
+        * *serial_short* (``str``) --
+            ID_SERIAL_SHORT
+        * *base_devname* (``str``) --
+            /dev/ttyACM or USB
+
+    """
+    # Get parameters
+    vendor          = None if "vendor" not in kwargs else kwargs["vendor"]
+    model           = None if "model" not in kwargs else kwargs["model"]
+    serial_short    = None if "serial_short" not in kwargs else kwargs["serial_short"]
+    base_devname    = "/dev/ttyACM" if "base_devname" not in kwargs else kwargs["base_devname"]
+
+    # Explore usb device with tty subsystem
+    udev_context = pyudev.Context()
+    for device in udev_context.list_devices(SUBSYSTEM='tty'):
+        properties = dict(device.properties)
+        
+        # For debugging purpose
+        # logger.debug(f"{properties}")
+
+        # Need to find the one with the DEVNAME corresponding to the /dev serial port
+        if 'DEVNAME' not in properties or not properties['DEVNAME'].startswith(base_devname):
+            continue
+
+        # Checks
+        if vendor and (vendor != properties["ID_VENDOR_ID"]):
+            continue
+        if model and (model != properties["ID_MODEL_ID"]):
+            continue
+        if serial_short and (serial_short != properties["ID_SERIAL_SHORT"]):
+            continue
+
+        return properties["DEVNAME"]
+
+
+    raise Exception(f"ERROR: device tty for [{vendor}:{model}:{serial_short}:{base_devname}] not found !")
 
