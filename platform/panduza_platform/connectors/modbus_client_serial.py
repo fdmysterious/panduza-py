@@ -1,6 +1,5 @@
 import time
 import serial
-# import minimalmodbus
 from loguru import logger
 
 from pymodbus.client import ModbusSerialClient 
@@ -27,26 +26,26 @@ class ConnectorModbusClientSerial(ConnectorModbusClientBase):
         """
 
         # Get the serial port key
-        key = None
+        port_name = None
         if port != None:
-            key = port
+            port_name = port
         elif usb_vendor_id != None and usb_product_id != None:
-            key = TTYPortFromUsbInfo(usb_vendor_id, usb_product_id, usb_serial_id, usb_base_dev_tty)
+            port_name = TTYPortFromUsbInfo(usb_vendor_id, usb_product_id, usb_serial_id, usb_base_dev_tty)
         else:
             raise Exception("no way to identify the modbus serial port")
 
         # Create the new connector
-        if not (key in ConnectorModbusClientSerial.__instances):
-            ConnectorModbusClientSerial.__instances[key] = None
+        if not (port_name in ConnectorModbusClientSerial.__instances):
+            ConnectorModbusClientSerial.__instances[port_name] = None
             try:
-                new_instance = ConnectorModbusClientSerial(key, baudrate, bytesize, parity, stopbits, validator)
-                ConnectorModbusClientSerial.__instances[key] = new_instance
+                new_instance = ConnectorModbusClientSerial(port_name, baudrate, bytesize, parity, stopbits, validator)
+                ConnectorModbusClientSerial.__instances[port_name] = new_instance
             except Exception as e:
-                ConnectorModbusClientSerial.__instances.pop(key)
+                ConnectorModbusClientSerial.__instances.pop(port_name)
                 raise Exception('Error during initialization').with_traceback(e.__traceback__)
 
         # Return the previously created
-        return ConnectorModbusClientSerial.__instances[key]
+        return ConnectorModbusClientSerial.__instances[port_name]
 
     ###########################################################################
     ###########################################################################

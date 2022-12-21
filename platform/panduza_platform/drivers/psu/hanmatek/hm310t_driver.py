@@ -1,7 +1,7 @@
 import time
 from collections import ChainMap
-from panduza_platform import MetaDriverPsu
-from panduza_platform import ConnectorModbusClientSerial
+from panduza_platform.meta_drivers.psu import MetaDriverPsu
+from panduza_platform.connectors.modbus_client_serial import ConnectorModbusClientSerial
 
 HM310T_USBID_VENDOR="1a86"
 HM310T_USBID_PRODUCT="7523"
