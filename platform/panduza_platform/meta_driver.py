@@ -357,6 +357,11 @@ class MetaDriver(metaclass=abc.ABCMeta):
     ###########################################################################
     ###########################################################################
 
+    def PZADRV_hunt():
+        """
+        """
+        return None
+
     @abc.abstractmethod
     def _PZADRV_config(self):
         """

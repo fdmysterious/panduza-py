@@ -271,7 +271,19 @@ class MetaPlatform:
         logger.info("*** !!! HUNT MODE ENABLED !!! ***")
         logger.info("*********************************")
 
-        
+        os.makedirs("/etc/panduza/platform", exist_ok=True)
+        filepath = "/etc/panduza/platform/py.json"
+
+        f = open(filepath, "w")
+
+        hunting_bag = []
+        for drv in self.drivers:
+            meat = drv.PZADRV_hunt()
+            if meat:
+                hunting_bag.append(meat)
+
+        f.write(json.dumps(hunting_bag))
+        f.close()
 
     ###########################################################################
     ###########################################################################
