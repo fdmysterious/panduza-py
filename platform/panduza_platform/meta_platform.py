@@ -1,4 +1,4 @@
-import sys
+import os
 import json
 import pkgutil
 import argparse
@@ -41,9 +41,9 @@ class MetaPlatform:
         """ Constructor
         """
         # Debug logs to structure log file
-        logger.debug("==========================================")
-        logger.debug(f"= PANDUZA PYTHON PLATFORM          {PLATFORM_VERSION} =")
-        logger.debug("==========================================")
+        logger.info("==========================================")
+        logger.info(f"= PANDUZA PYTHON PLATFORM          {PLATFORM_VERSION} =")
+        logger.info("==========================================")
 
         # Threads
         self.threads = []
@@ -264,49 +264,67 @@ class MetaPlatform:
     ###########################################################################
     ###########################################################################
 
+    def hunt_mode(self):
+        """Fonction to perform the interface auto-detection on the system
+        """
+        logger.info("*********************************")
+        logger.info("*** !!! HUNT MODE ENABLED !!! ***")
+        logger.info("*********************************")
+
+        
+
+    ###########################################################################
+    ###########################################################################
+
     def run(self):
         """Starting point of the platform
         """
 
-        # Load a default tree path if not provided
-        if not self.tree_filepath:
-            # Set the default tree path on linux
-            if platform == "linux" or platform == "linux2":
-                self.tree_filepath = "/etc/panduza/tree.json"
+        # Check if the hunt mode is enabled
+        HUNT = os.getenv('HUNT')
+        if HUNT == "on":
+            self.hunt_mode()
 
-        try:
-            # Load tree
-            self.tree = {}
-            with open(self.tree_filepath) as tree_file:
-                self.tree = json.load(tree_file)
+        else:
+            # Load a default tree path if not provided
+            if not self.tree_filepath:
+                # Set the default tree path on linux
+                if platform == "linux" or platform == "linux2":
+                    self.tree_filepath = "/etc/panduza/tree.json"
 
-            # Parse configs
-            logger.debug("load tree:{}", json.dumps(self.tree, indent=1))
-            for broker in self.tree["brokers"]:
-                self.__load_tree_broker(self.tree["machine"], broker, self.tree["brokers"][broker])
+            try:
+                # Load tree
+                self.tree = {}
+                with open(self.tree_filepath) as tree_file:
+                    self.tree = json.load(tree_file)
 
-            # Run all the interfaces on differents threads
-            for interface in self.interfaces:
-                t = threading.Thread(target=interface["instance"].start)
-                self.threads.append(t)
+                # Parse configs
+                logger.debug("load tree:{}", json.dumps(self.tree, indent=1))
+                for broker in self.tree["brokers"]:
+                    self.__load_tree_broker(self.tree["machine"], broker, self.tree["brokers"][broker])
 
-            # Start all the threads
-            for thread in self.threads:
-                thread.start()
-            
-            # Log
-            logger.info("Platform started !")
+                # Run all the interfaces on differents threads
+                for interface in self.interfaces:
+                    t = threading.Thread(target=interface["instance"].start)
+                    self.threads.append(t)
 
-            # Join them all !
-            for thread in self.threads:
-                thread.join()
+                # Start all the threads
+                for thread in self.threads:
+                    thread.start()
+                
+                # Log
+                logger.info("Platform started !")
 
-        except KeyboardInterrupt:
-            logger.warning("ctrl+c => user stop requested")
-            self.stop()
+                # Join them all !
+                for thread in self.threads:
+                    thread.join()
 
-        except FileNotFoundError:
-            logger.critical(f"Platform configuration file 'tree.json' has not been found at location '{self.tree_filepath}' !!==>> STOP PLATFORM")
+            except KeyboardInterrupt:
+                logger.warning("ctrl+c => user stop requested")
+                self.stop()
+
+            except FileNotFoundError:
+                logger.critical(f"Platform configuration file 'tree.json' has not been found at location '{self.tree_filepath}' !!==>> STOP PLATFORM")
 
     ###########################################################################
     ###########################################################################
