@@ -81,3 +81,32 @@ def SerialPortFromUsbSetting(**kwargs):
 
     raise Exception(f"ERROR: device tty for [{vendor}:{model}:{serial_short}:{base_devname}] not found !")
 
+
+
+
+def HuntUsbDevs(vendor, model=None, subsystem=None):
+    """Return a list with devices fond with those criterias
+    """
+    results = []
+
+    # Explore usb device with tty subsystem
+    udev_context = pyudev.Context()
+
+    # Convert properties
+    # I don't understand how th pyudev filters works
+    for device in udev_context.list_devices():
+        properties = dict(device.properties)
+
+        if not ( vendor and ("ID_VENDOR_ID" in properties) and (properties["ID_VENDOR_ID"]==vendor) ):
+            continue
+        if not ( model and ("ID_MODEL_ID" in properties) and (properties["ID_MODEL_ID"]==model) ):
+            continue
+        if not ( subsystem and ("SUBSYSTEM" in properties) and (properties["SUBSYSTEM"]==subsystem) ):
+            continue
+
+        results.append(properties)
+        # For debugging purpose
+        # logger.debug(f"{properties}")
+
+    return results
+

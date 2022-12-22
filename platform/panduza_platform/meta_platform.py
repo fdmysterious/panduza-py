@@ -278,11 +278,12 @@ class MetaPlatform:
 
         hunting_bag = []
         for drv in self.drivers:
-            meat = drv.PZADRV_hunt()
+            meat = drv().hunt()
             if meat:
                 hunting_bag.append(meat)
 
-        f.write(json.dumps(hunting_bag))
+        content = { "drivers": hunting_bag } 
+        f.write(json.dumps(content, indent=4))
         f.close()
 
     ###########################################################################
