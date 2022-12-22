@@ -89,17 +89,11 @@ class DriverHM310T(MetaDriverPsu):
         str_value = int_to_state_string(regs[0])
         return str_value
 
-    ###########################################################################
-    ###########################################################################
-
     def _PZADRV_PSU_write_state_value(self, v):
         addr = 0x0001
         int16_value = STATE_VALUE_ENUM[v]
         self.log.info(f"write state addr={hex(addr)} value={int16_value}")
         self.modbus.write_register(addr, int16_value, self.modbus_unit)
-
-    ###########################################################################
-    ###########################################################################
 
     def _PZADRV_PSU_read_volts_value(self):
         # addr = 0x0010 # not really reliable
@@ -109,17 +103,11 @@ class DriverHM310T(MetaDriverPsu):
         float_value = float(regs[0]) / 100.0
         return float_value
 
-    ###########################################################################
-    ###########################################################################
-
     def _PZADRV_PSU_write_volts_value(self, v):
         addr = 0x0030
         int16_value = int(v * 100)
         self.log.info(f"write volts addr={hex(addr)} valuex100={int16_value}")
         self.modbus.write_register(addr, int16_value, self.modbus_unit)
-
-    ###########################################################################
-    ###########################################################################
 
     def _PZADRV_PSU_read_amps_value(self):
         addr = 0x0031
@@ -127,9 +115,6 @@ class DriverHM310T(MetaDriverPsu):
         self.log.info(f"read amps addr={hex(addr)} regs={regs}")
         float_value = float(regs[0]) / 1000.0
         return float_value
-    
-    ###########################################################################
-    ###########################################################################
 
     def _PZADRV_PSU_write_amps_value(self, v):
         addr = 0x0031
@@ -137,6 +122,13 @@ class DriverHM310T(MetaDriverPsu):
         self.log.info(f"write amps addr={hex(addr)} valuex1000={int16_value}")
         self.modbus.write_register(addr, int16_value, self.modbus_unit)
 
+    ###########################################################################
+    ###########################################################################
+
+    def PZADRV_hunt():
+        """
+        """
+        return None
 
 
 

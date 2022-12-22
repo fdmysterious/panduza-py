@@ -22,6 +22,25 @@ class MetaDriver(metaclass=abc.ABCMeta):
     ###########################################################################
     ###########################################################################
 
+    def hunt(self):
+        """
+        """
+        config = self._PZADRV_config()
+        name = "unnamed" if "name" not in config else config["name"]
+        description = "" if "description" not in config else config["description"]
+        template = self._PZADRV_tree_template()
+        instances = self._PZADRV_hunt_instances()
+        obj = {
+            "name": name,
+            "description": description,
+            "template": template,
+            "instances": instances
+        }
+        return obj
+
+    ###########################################################################
+    ###########################################################################
+
     def initialize(self, platform, machine, broker, tree):
         """Post initialization
         """
@@ -357,11 +376,22 @@ class MetaDriver(metaclass=abc.ABCMeta):
     ###########################################################################
     ###########################################################################
 
+    
     @abc.abstractmethod
     def _PZADRV_config(self):
         """
         """
         pass
+
+    def _PZADRV_tree_template(self):
+        """
+        """
+        return {}
+
+    def _PZADRV_hunt_instances(self):
+        """
+        """
+        return []
 
     @abc.abstractmethod
     def _PZADRV_loop_ini(self, tree):
