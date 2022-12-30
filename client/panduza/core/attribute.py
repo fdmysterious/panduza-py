@@ -10,6 +10,8 @@ from dataclasses import dataclass, field
 from .client import Client
 from .interface import Interface
 
+from .helper import topic_join
+
 # -----------------------------------------------------------------------------
 
 class EnsureError(Exception):
@@ -32,7 +34,7 @@ class Attribute:
     def __post_init__(self):
         """Initialize topics and logging
         """
-        # self._topic_atts_get = os.path.join(self.base_topic, "atts", self.name       )
+        # self._topic_atts_get = topic_join(self.base_topic, "atts", self.name       )
         
         # self._log            = logging.getLogger(f"PZA {self.name} attribute for {self.base_topic}")
         pass
@@ -40,7 +42,7 @@ class Attribute:
 
     def set_interface(self, interface):
         self.interface = interface
-        self._topic_cmds_set = os.path.join(self.interface.topic, "cmds", "set")
+        self._topic_cmds_set = topic_join(self.interface.topic, "cmds", "set")
 
 
     def add_field(self, field):
