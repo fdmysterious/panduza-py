@@ -276,6 +276,22 @@ class MetaDriver(metaclass=abc.ABCMeta):
         if push:
             self._push_attribute(attribute)
 
+
+    def _update_attributes_from_dict(self, change_dict, push=True):
+        """
+        """
+        for attribute in change_dict:
+            for field, value in change_dict[attribute].items():
+                self._update_attribute(attribute, field, value, False)
+            if push:
+                self._push_attribute(attribute)
+
+
+    def _get_field(self, attribute, field):
+        """
+        """
+        return self.__drv_atts[attribute][field]
+
     ###########################################################################
     ###########################################################################
 
