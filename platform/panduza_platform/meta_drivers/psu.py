@@ -31,6 +31,10 @@ class MetaDriverPsu(MetaDriver):
 
         self._update_attribute("state", "value", self._PZADRV_PSU_read_state_value())
         self._update_attribute("volts", "value", self._PZADRV_PSU_read_volts_value())
+
+        default = dict() if "default" not in tree else tree["default"]
+        self._update_attributes_from_dict(default)
+
         self._pzadrv_ini_success()
 
     def _PZADRV_loop_run(self):
@@ -131,8 +135,11 @@ class MetaDriverPsu(MetaDriver):
             if not isinstance(v, int) and not isinstance(v, float):
                 raise Exception(f"Invalid type for volts.value {type(v)}")
             try:
-                self._PZADRV_PSU_write_volts_value(v)
-                self._update_attribute("volts", "value", self._PZADRV_PSU_read_volts_value())
+                if self._get_field("volts", "min") <= v <= self._get_field("volts", "max"):
+                    self._PZADRV_PSU_write_volts_value(v)
+                    self._update_attribute("volts", "value", self._PZADRV_PSU_read_volts_value())
+                else:
+                    self.log.error(f"value {v} out of range {self._get_field('volts', 'min')} < {self._get_field('volts', 'max')}")
             except Exception as e:
                 self.log.error(f"{e}")
 

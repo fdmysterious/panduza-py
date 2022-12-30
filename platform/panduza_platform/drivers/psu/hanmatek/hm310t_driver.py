@@ -49,6 +49,8 @@ class DriverHM310T(MetaDriverPsu):
 
     def _PZADRV_loop_ini(self, tree):
 
+        
+
         # Get the gate
         self.modbus = ConnectorModbusClientSerial.Get(
             usb_vendor_id=HM310T_USBID_VENDOR,
