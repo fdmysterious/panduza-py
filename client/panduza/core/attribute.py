@@ -34,16 +34,29 @@ class Attribute:
     def __post_init__(self):
         """Initialize topics and logging
         """
-        # self._topic_atts_get = topic_join(self.base_topic, "atts", self.name       )
-        
-        # self._log            = logging.getLogger(f"PZA {self.name} attribute for {self.base_topic}")
-        pass
+        self._log = logging.getLogger(f"PZA {self.name}")
+
 
 
     def set_interface(self, interface):
         self.interface = interface
+        self._topic_atts = topic_join(self.interface.topic, "atts", self.name)
         self._topic_cmds_set = topic_join(self.interface.topic, "cmds", "set")
 
+        # Subscribe to topic
+        self._log.debug(f"topic atts : {self._topic_atts}")
+        self.interface.client.subscribe(self._topic_atts, callback=self._on_att_message)
+
+
+    def _on_att_message(self, topic, payload):
+        self._log.debug("Received new value")
+
+    #     if payload is None:
+    #         self.__value = None
+    #     else:
+    #         self.__value = self.payload_parser(payload)
+    #         self.__trigger.set()
+    
 
     def add_field(self, field):
         """Append a field to the attribute
