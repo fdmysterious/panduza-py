@@ -21,6 +21,19 @@ class DriverModbusClient(MetaDriver):
             ]
         }
 
+    def _PZADRV_tree_template(self):
+        return {
+            "name": "modbus_client",
+            "driver": "py.modbus.client",
+            "settings": {
+                "mode": "rtu"
+                # "vendor": vendor,
+                # "model": model,
+                # "serial_short": serial_short
+            }
+        }
+
+
     ###########################################################################
     ###########################################################################
 
