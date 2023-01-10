@@ -12,6 +12,8 @@ class DriverPsuFake(MetaDriverPsu):
     def _PZADRV_config(self):
         # Extend the common psu config
         return ChainMap(super()._PZADRV_config(), {
+            "name": "FakePSU",
+            "description": "Virtual PSU",
             "compatible": [
                 "psu.fake",
                 "py.psu.fake"

@@ -10,6 +10,8 @@ class DriverPlatform(MetaDriver):
 
     def _PZADRV_config(self):
         return {
+            "name": "PyPlatform",
+            "description": "Platform driver for python platform",
             "info": {
                 "type": "platform",
                 "version": "0.0"

@@ -11,6 +11,8 @@ class DriverIoFake(MetaDriverIo):
         """ From MetaDriver
         """
         return {
+            "name": "FakeIO",
+            "description": "Virtual IO",
             "compatible": [
                 "io_fake",
                 "py.io_fake"

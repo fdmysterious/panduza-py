@@ -3,7 +3,7 @@ from ...meta_driver import MetaDriver
 from ...connectors.modbus_client_serial import ConnectorModbusClientSerial
 
 class DriverModbusClient(MetaDriver):
-    """
+    """Driver for modbus client
     """
 
     ###########################################################################
@@ -11,6 +11,8 @@ class DriverModbusClient(MetaDriver):
 
     def _PZADRV_config(self):
         return {
+            "name": "ModbusClient",
+            "description": "Generic Modbus Client",
             "info": {
                 "type": "modbus.client",
                 "version": "0.0"
@@ -26,13 +28,13 @@ class DriverModbusClient(MetaDriver):
             "name": "modbus_client",
             "driver": "py.modbus.client",
             "settings": {
-                "mode": "rtu"
-                # "vendor": vendor,
-                # "model": model,
-                # "serial_short": serial_short
+                "mode": "rtu",
+                "vendor": "USB: Vendor ID",
+                "model": "USB: Model ID",
+                "serial_short": "USB: Short Serial ID",
+                "baudrate": "9600 | 115200 ..."
             }
         }
-
 
     ###########################################################################
     ###########################################################################
