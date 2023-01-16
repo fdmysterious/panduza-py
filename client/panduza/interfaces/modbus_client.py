@@ -1,8 +1,7 @@
 import json
 import threading
 from ..core import Interface
-from ..core import Interface, Attribute, EnsureError, Field
-
+from ..core import Interface, Attribute, EnsureError, RoField, RwField
 
 class ModbusClient(Interface):
     """Interface to manage power supplies
@@ -23,7 +22,7 @@ class ModbusClient(Interface):
                 name = "holding_regs"
             )
         ).add_field(
-            Field(
+            RwField(
                 name = "values"
             )
         )
@@ -34,9 +33,19 @@ class ModbusClient(Interface):
                 name = "watchlist"
             )
         ).add_field(
-            Field(
+            RwField(
                 name = "configs"
             )
         )
 
+
+
+    def watch_holding_regs(self, addr, size, unit, polling_time_s = 2):
+        """
+        """
+        # should append the new config here, not override it
+        self.watchlist.configs.set([{
+            "type": "holding_regs",
+            "address": addr, "size": size, "unit": unit,"polling_time_s": polling_time_s
+        }])
 

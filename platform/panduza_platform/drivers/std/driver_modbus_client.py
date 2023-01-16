@@ -9,6 +9,10 @@ class DriverModbusClient(MetaDriver):
     """Driver for modbus client
     """
 
+    WATCHLIST = []
+
+    HOLDING_REGS_VALUES = {}
+
     ###########################################################################
     ###########################################################################
 
@@ -69,6 +73,8 @@ class DriverModbusClient(MetaDriver):
                 serial_short=iss,
                 port_name=None))
 
+
+
         return instances
 
     ###########################################################################
@@ -88,6 +94,7 @@ class DriverModbusClient(MetaDriver):
 
         self.__cmd_handlers = {
             "holding_regs": self.__handle_cmds_set_holding_regs,
+            "watchlist": self.__handle_cmds_set_watchlist,
         }
 
         self._pzadrv_ini_success()
@@ -99,7 +106,23 @@ class DriverModbusClient(MetaDriver):
     def _PZADRV_loop_run(self):
         """
         """
-        pass
+        
+        for config in self.WATCHLIST:
+            self.log.debug(f"{config}")
+            regs = self.modbus.read_holding_registers(address=config["address"], size=config["size"], unit=config["unit"])
+            self.log.debug(f"{regs}")
+
+            self.HOLDING_REGS_VALUES.setdefault(config["unit"], {})
+            u = self.HOLDING_REGS_VALUES[config["unit"]]
+            u[str(config["address"])] = regs[0]
+
+            self._update_attribute("holding_regs", "value", self.HOLDING_REGS_VALUES)
+
+            # TODO Fix this BAD way of managing polling for multiple polling time
+            time.sleep(float(config["polling_time_s"]))
+
+
+
 
     ###########################################################################
     ###########################################################################
@@ -138,3 +161,23 @@ class DriverModbusClient(MetaDriver):
                 # self._update_attribute("state", "value", v)
             except Exception as e:
                 self.log.error(f"{e}")
+
+    ###########################################################################
+    ###########################################################################
+
+    def __handle_cmds_set_watchlist(self, cmd_att):
+        """
+        """
+        if "configs" in cmd_att:
+            configs = cmd_att["configs"]
+            try:
+                # TODO need to check inputs here
+                self.WATCHLIST = configs
+                # for u in configs:
+                #     for addr in configs[u]:
+                #         self.log.debug(f"append watch on unit {u} register {addr} with {configs[u][addr]}")
+                #         self.modbus.write_register(int(addr), int(configs[u][addr]), int(u) )
+                # self._update_attribute("state", "value", v)
+            except Exception as e:
+                self.log.error(f"{e}")
+

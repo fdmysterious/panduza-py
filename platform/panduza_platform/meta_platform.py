@@ -295,8 +295,9 @@ class MetaPlatform:
 
         # Check if the hunt mode is enabled
         HUNT = os.getenv('HUNT')
-        logger.info(f"HUNT={HUNT}")
-        if HUNT == "on" or HUNT=="1":
+        hunt = os.getenv('hunt')
+        logger.info(f"HUNT={HUNT} & hunt={hunt}")
+        if HUNT == "on" or HUNT=="1" or hunt == "on" or hunt=="1":
             self.hunt_mode()
 
         else:
