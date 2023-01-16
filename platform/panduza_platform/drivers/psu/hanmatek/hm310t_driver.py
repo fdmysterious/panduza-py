@@ -36,6 +36,8 @@ class DriverHM310T(MetaDriverPsu):
     def _PZADRV_config(self):
         # Extend the common psu config
         return ChainMap(super()._PZADRV_config(), {
+            "name": "Py_Psu_HM310T",
+            "description": "Power Supply HM310T",
             "compatible": [
                 "hm310t",
                 "hanmatek.hm310t",
@@ -43,6 +45,24 @@ class DriverHM310T(MetaDriverPsu):
                 "py.psu.hanmatek.hm310t"
             ]
         })
+
+
+    def __tgen(name_suffix):
+        return {
+            "name": "HM310T:" + name_suffix,
+            "driver": "py.psu.hanmatek.hm310t"
+        }
+
+    def _PZADRV_tree_template(self):
+        return DriverHM310T.__tgen("template")
+
+    # def _PZADRV_hunt_instances(self):
+    #     instances = []
+    #     usb_pieces = HuntUsbDevs(vendor=QL355P_USBID_VENDOR, model=QL355P_USBID_MODEL, subsystem="tty")
+    #     for p in usb_pieces:
+    #         iss = p["ID_SERIAL_SHORT"]
+    #         instances.append(DriverQL355P.__tgen(iss, iss))
+    #     return instances
 
     ###########################################################################
     ###########################################################################
