@@ -2,6 +2,9 @@ import time
 from ...meta_driver import MetaDriver
 from ...connectors.modbus_client_serial import ConnectorModbusClientSerial
 
+from panduza_platform.connectors.udev_tty import HuntUsbDevs
+
+
 class DriverModbusClient(MetaDriver):
     """Driver for modbus client
     """
@@ -23,19 +26,50 @@ class DriverModbusClient(MetaDriver):
             ]
         }
 
-    def _PZADRV_tree_template(self):
-        return {
-            "name": "modbus_client",
+
+
+    def _PZADRV_tree_template(self,
+        name="template",
+        vendor="USB: Vendor ID",
+        model="USB: Model ID",
+        serial_short= "USB: Short Serial ID",
+        port_name = "/dev/ttyUSBxxx or COM"
+    ):
+        template = {
+            "name": "modbus_client:" + name,
             "driver": "py.modbus.client",
             "settings": {
                 "mode": "rtu",
-                "vendor": "USB: Vendor ID",
-                "model": "USB: Model ID",
-                "serial_short": "USB: Short Serial ID",
-                "port_name": "/dev/ttyUSBxxx or COM",
+                "vendor": vendor,
+                "model": model,
+                "serial_short": serial_short,
+                "port_name": port_name,
                 "baudrate": "int => 9600 | 115200 ..."
             }
         }
+
+        if port_name is None:
+            del template["settings"]["port_name"]
+
+        return template
+
+    def _PZADRV_hunt_instances(self):
+        instances = []
+
+        # 16de:0003 Telemecanique USB - RS485 SL cable
+        TELEMEC_VENDOR="16de"
+        TELEMEC_MODEL="0003"
+        usb_pieces = HuntUsbDevs(vendor=TELEMEC_VENDOR, model=TELEMEC_MODEL, subsystem="tty")
+        for p in usb_pieces:
+            iss = p["ID_SERIAL_SHORT"]
+            instances.append(self._PZADRV_tree_template(
+                name=iss,
+                vendor=TELEMEC_VENDOR,
+                model=TELEMEC_MODEL,
+                serial_short=iss,
+                port_name=None))
+
+        return instances
 
     ###########################################################################
     ###########################################################################
