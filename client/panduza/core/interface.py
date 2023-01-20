@@ -2,28 +2,34 @@ import time
 import json
 import paho.mqtt.client as mqtt
 
+from dataclasses import dataclass, field
+
 from .core import Core
 from .client import Client
+from .helper import topic_join
 
+from .attribute_info import AttributeInfo
 
+@dataclass
 class Interface:
     """Access point to a Panduza interface
     """
 
-    ###########################################################################
-    ###########################################################################
+    alias : str = None
+    addr : str = None
+    port : int = None
+    topic : str = None
+    client = None
     
-    def __init__(self, alias=None, addr=None, port=None, topic=None, client=None):
-        """Constructor
-        """
+    def __post_init__(self):
         self._initialized = False
-        self.init(alias, addr, port, topic, client)
 
-    ###########################################################################
-    ###########################################################################
+        self.init(self.alias, self.addr, self.port, self.topic, self.client)
 
-    def _post_initialization(self):
-        pass
+        # === INFO ===
+        self.add_attribute(
+            AttributeInfo()
+        )
 
     ###########################################################################
     ###########################################################################
@@ -53,16 +59,10 @@ class Interface:
         if not self.client.is_connected:
             self.client.connect()
 
-        
-        # #
-        # self.heart_beat_monitoring = HeartBeatMonitoring(self.client, self.topic)
-        
 
         # Initialization ok
         self._initialized = True
 
-        #
-        self._post_initialization()
 
 
     ###########################################################################
@@ -116,9 +116,9 @@ class Interface:
     ###########################################################################
     ###########################################################################
 
-    def _on_mqtt_message(self, client, userdata, msg):
-        # print("!!!", msg.topic)
+    # def _on_info_message(self, client, userdata, msg):
+    #     print("!!!", msg.topic)
 
-        if msg.topic.endswith('/info'):
-            self.heart_beat_monitoring.update()
+        # if msg.topic.endswith('/info'):
+        #     self.heart_beat_monitoring.update()
 
