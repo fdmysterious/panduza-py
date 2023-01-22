@@ -3,7 +3,7 @@ from ...meta_driver import MetaDriver
 from ...connectors.modbus_client_serial import ConnectorModbusClientSerial
 
 class DriverModbusClient(MetaDriver):
-    """
+    """Driver for modbus client
     """
 
     ###########################################################################
@@ -11,6 +11,8 @@ class DriverModbusClient(MetaDriver):
 
     def _PZADRV_config(self):
         return {
+            "name": "ModbusClient",
+            "description": "Generic Modbus Client",
             "info": {
                 "type": "modbus.client",
                 "version": "0.0"
@@ -21,6 +23,20 @@ class DriverModbusClient(MetaDriver):
             ]
         }
 
+    def _PZADRV_tree_template(self):
+        return {
+            "name": "modbus_client",
+            "driver": "py.modbus.client",
+            "settings": {
+                "mode": "rtu",
+                "vendor": "USB: Vendor ID",
+                "model": "USB: Model ID",
+                "serial_short": "USB: Short Serial ID",
+                "port_name": "/dev/ttyUSBxxx or COM",
+                "baudrate": "int => 9600 | 115200 ..."
+            }
+        }
+
     ###########################################################################
     ###########################################################################
 
@@ -28,13 +44,12 @@ class DriverModbusClient(MetaDriver):
 
         # self.log.debug(f"{tree}")
 
-        settings = tree["settings"]
+        
+        settings = dict() if "settings" not in tree else tree["settings"]
+        settings["base_devname"] = "/dev/ttyUSB"
 
         # Get the gate
-        self.modbus = ConnectorModbusClientSerial.Get(
-            port=settings["serial"]["port"],
-            baudrate=settings["serial"]["baudrate"]
-        )
+        self.modbus = ConnectorModbusClientSerial.GetV2(**settings)
 
 
         self.__cmd_handlers = {

@@ -1,22 +1,38 @@
 import json
 import threading
-from ..core import Interface
+from dataclasses import dataclass, field
 from ..core import Interface, Attribute, EnsureError, RoField, RwField
 
-
+@dataclass
 class Psu(Interface):
     """Interface to manage power supplies
     """
+    
 
-    def __init__(self, alias=None, addr=None, port=None, topic=None, client=None):
-        """! Constructor
-        """
-        super().__init__(alias, addr, port, topic, client)
+    interface:Interface = None
+    
+
+    # def __init__(self, alias=None, addr=None, port=None, topic=None, client=None):
+    #     """! Constructor
+    #     """
+    #     super().__init__(alias, addr, port, topic, client)
+        # print("__init__")
 
 
-    def _post_initialization(self):
-        """! Declare attributes here
-        """
+    def __post_init__(self):
+
+        if self.alias:
+            pass
+        elif self.interface:
+            # Build from an other interface
+            self.alias = self.interface.alias
+            self.addr = self.interface.addr
+            self.port = self.interface.port
+            self.topic = self.interface.topic
+            self.client = self.interface.client
+
+        super().__post_init__()
+
         # === STATE ===
         self.add_attribute(
             Attribute(

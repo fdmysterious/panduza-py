@@ -8,7 +8,6 @@ from typing      import Optional, Callable, Set
 from dataclasses import dataclass, field
 
 from .client import Client
-from .interface import Interface
 
 from .helper import topic_join
 
@@ -29,13 +28,12 @@ class EnsureError(Exception):
 @dataclass
 class Attribute:
     name: str
-    interface: Interface = None
+    interface = None
     
     def __post_init__(self):
         """Initialize topics and logging
         """
         self._log = logging.getLogger(f"PZA {self.name}")
-
 
 
     def set_interface(self, interface):
@@ -47,9 +45,11 @@ class Attribute:
         self._log.debug(f"topic atts : {self._topic_atts}")
         self.interface.client.subscribe(self._topic_atts, callback=self._on_att_message)
 
+        # print("sub \n", self._topic_atts)
 
     def _on_att_message(self, topic, payload):
         self._log.debug("Received new value")
+        # print("Received new value\n")
 
     #     if payload is None:
     #         self.__value = None

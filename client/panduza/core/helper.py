@@ -1,5 +1,4 @@
-
-
+import json
 
 def topic_join(*sections):
     """join mqtt topic sections
@@ -11,4 +10,9 @@ def topic_join(*sections):
         topic+=s
     return topic
 
+
+def payload_to_dict(payload):
+    """ To parse json payload
+    """
+    return json.loads(payload.decode("utf-8"))
 

@@ -149,7 +149,6 @@ class Client:
             payload=json.dumps(req).encode("utf-8"),
             qos=qos
         )
-        # request.wait_for_publish()
 
     # ┌────────────────────────────────────────┐
     # │ Register/Unregister listener           │
