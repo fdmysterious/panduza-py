@@ -16,7 +16,7 @@ setup(
         packages=find_packages(),
         cmdclass={'install': CustomInstallCommand},
 
-        install_requires=['paho-mqtt', 'python-magic'],
+        install_requires=['paho-mqtt', 'python-magic', 'robotframework-pythonlibcore'],
 
         classifiers= [
             "Development Status :: 3 - Alpha",
