@@ -143,7 +143,7 @@ class ConnectorModbusClientSerial(ConnectorModbusClientBase):
     def read_holding_registers(self, address: int, size: int = 1, unit: int = 1):
         """
         """
-        response = self.client.read_holding_registers(address, size, unit=unit)
+        response = self.client.read_holding_registers(address=address, count=size, slave=unit)
         if not response.isError():
             return response.registers
         else:
