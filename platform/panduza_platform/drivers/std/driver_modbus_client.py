@@ -2,9 +2,16 @@ import time
 from ...meta_driver import MetaDriver
 from ...connectors.modbus_client_serial import ConnectorModbusClientSerial
 
+from panduza_platform.connectors.udev_tty import HuntUsbDevs
+
+
 class DriverModbusClient(MetaDriver):
     """Driver for modbus client
     """
+
+    WATCHLIST = []
+
+    HOLDING_REGS_VALUES = {}
 
     ###########################################################################
     ###########################################################################
@@ -23,19 +30,52 @@ class DriverModbusClient(MetaDriver):
             ]
         }
 
-    def _PZADRV_tree_template(self):
-        return {
-            "name": "modbus_client",
+
+
+    def _PZADRV_tree_template(self,
+        name="template",
+        vendor="USB: Vendor ID",
+        model="USB: Model ID",
+        serial_short= "USB: Short Serial ID",
+        port_name = "/dev/ttyUSBxxx or COM"
+    ):
+        template = {
+            "name": "modbus_client:" + name,
             "driver": "py.modbus.client",
             "settings": {
                 "mode": "rtu",
-                "vendor": "USB: Vendor ID",
-                "model": "USB: Model ID",
-                "serial_short": "USB: Short Serial ID",
-                "port_name": "/dev/ttyUSBxxx or COM",
+                "vendor": vendor,
+                "model": model,
+                "serial_short": serial_short,
+                "port_name": port_name,
                 "baudrate": "int => 9600 | 115200 ..."
             }
         }
+
+        if port_name is None:
+            del template["settings"]["port_name"]
+
+        return template
+
+    def _PZADRV_hunt_instances(self):
+        instances = []
+
+        # 16de:0003 Telemecanique USB - RS485 SL cable
+        TELEMEC_VENDOR="16de"
+        TELEMEC_MODEL="0003"
+        usb_pieces = HuntUsbDevs(vendor=TELEMEC_VENDOR, model=TELEMEC_MODEL, subsystem="tty")
+        for p in usb_pieces:
+            iss = p["ID_SERIAL_SHORT"]
+            instances.append(self._PZADRV_tree_template(
+                name=iss,
+                vendor=TELEMEC_VENDOR,
+                model=TELEMEC_MODEL,
+                serial_short=iss,
+                port_name=None))
+
+
+
+        return instances
 
     ###########################################################################
     ###########################################################################
@@ -54,6 +94,7 @@ class DriverModbusClient(MetaDriver):
 
         self.__cmd_handlers = {
             "holding_regs": self.__handle_cmds_set_holding_regs,
+            "watchlist": self.__handle_cmds_set_watchlist,
         }
 
         self._pzadrv_ini_success()
@@ -65,7 +106,23 @@ class DriverModbusClient(MetaDriver):
     def _PZADRV_loop_run(self):
         """
         """
-        pass
+        
+        for config in self.WATCHLIST:
+            self.log.debug(f"{config}")
+            regs = self.modbus.read_holding_registers(address=config["address"], size=config["size"], unit=config["unit"])
+            self.log.debug(f"{regs}")
+
+            self.HOLDING_REGS_VALUES.setdefault(config["unit"], {})
+            u = self.HOLDING_REGS_VALUES[config["unit"]]
+            u[str(config["address"])] = regs[0]
+
+            self._update_attribute("holding_regs", "value", self.HOLDING_REGS_VALUES)
+
+            # TODO Fix this BAD way of managing polling for multiple polling time
+            time.sleep(float(config["polling_time_s"]))
+
+
+
 
     ###########################################################################
     ###########################################################################
@@ -104,3 +161,23 @@ class DriverModbusClient(MetaDriver):
                 # self._update_attribute("state", "value", v)
             except Exception as e:
                 self.log.error(f"{e}")
+
+    ###########################################################################
+    ###########################################################################
+
+    def __handle_cmds_set_watchlist(self, cmd_att):
+        """
+        """
+        if "configs" in cmd_att:
+            configs = cmd_att["configs"]
+            try:
+                # TODO need to check inputs here
+                self.WATCHLIST = configs
+                # for u in configs:
+                #     for addr in configs[u]:
+                #         self.log.debug(f"append watch on unit {u} register {addr} with {configs[u][addr]}")
+                #         self.modbus.write_register(int(addr), int(configs[u][addr]), int(u) )
+                # self._update_attribute("state", "value", v)
+            except Exception as e:
+                self.log.error(f"{e}")
+

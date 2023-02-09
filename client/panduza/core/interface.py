@@ -19,7 +19,7 @@ class Interface:
     addr : str = None
     port : int = None
     topic : str = None
-    client = None
+    client : object = None
     
     def __post_init__(self):
         self._initialized = False

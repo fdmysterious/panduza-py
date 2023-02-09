@@ -10,7 +10,7 @@ args = parser.parse_args()
 
 logger.remove()
 logger.add(sys.stdout, format="{level: <10}|{extra[driver_name]: <10}> {message}", level="DEBUG")
-logger.add("/etc/panduza/log/py.log", format="{level: <10}|{extra[driver_name]: <10}> {message}", level="DEBUG", rotation="50 MB")
+logger.add("/etc/panduza/log/py.log", format="{time} | {level: <10}|{extra[driver_name]: <10}> {message}", level="DEBUG", rotation="50 MB")
 
 srv = MetaPlatform()
 srv.force_log = True
